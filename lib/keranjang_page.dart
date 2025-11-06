@@ -22,7 +22,7 @@ class _KeranjangPageState extends State<KeranjangPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Keranjang')),
+      appBar: AppBar(title: const Text('CART')),
       body: Column(
         children: [
           Expanded(

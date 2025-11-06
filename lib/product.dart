@@ -4,6 +4,7 @@ import 'detail_kaos.dart';
 import 'detail_hoodie.dart';
 import 'kaos_data.dart';
 import 'hoodie_data.dart';
+import 'package:intl/intl.dart'; //
 
 class ProductPage extends StatelessWidget {
   final String category;
@@ -43,6 +44,10 @@ class ProductPage extends StatelessWidget {
       ];
     }
 
+    // ✅ Buat instance NumberFormat dari intl untuk format Rupiah
+    final formatRupiah =
+        NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Produk $category"),
@@ -54,17 +59,17 @@ class ProductPage extends StatelessWidget {
       ),
       body: Stack(
         children: [
-          // Background Image (sama seperti di Dashboard)
+          // Background Image
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                    "assets/images/background.png"), // Gambar background
+                image: AssetImage("assets/images/background.png"),
                 fit: BoxFit.cover,
               ),
             ),
           ),
-          // ListView Produk
+
+          // Daftar Produk
           ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: products.length,
@@ -80,12 +85,11 @@ class ProductPage extends StatelessWidget {
                       color: Colors.black12,
                       blurRadius: 6,
                       offset: Offset(2, 2),
-                    )
+                    ),
                   ],
                 ),
                 child: ListTile(
-                  contentPadding:
-                      const EdgeInsets.all(16), // padding lebih besar
+                  contentPadding: const EdgeInsets.all(16),
                   leading: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
@@ -108,24 +112,24 @@ class ProductPage extends StatelessWidget {
                     product["name"],
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 18, // font lebih besar
+                      fontSize: 18,
                     ),
                   ),
+                  // ✅ Gunakan intl di sini untuk format harga
                   subtitle: Text(
-                    "Rp ${product["price"]}",
+                    formatRupiah.format(product["price"]),
                     style: const TextStyle(
                       color: Colors.grey,
-                      fontSize: 16, // font harga juga diperbesar
+                      fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   trailing: const Icon(
                     Icons.chevron_right,
                     color: Colors.pinkAccent,
-                    size: 30, // panah lebih besar
+                    size: 30,
                   ),
                   onTap: () async {
-                    // Navigasi ke halaman detail produk sesuai kategori dan tunggu hasil
                     Widget detailPage;
                     if (category.toLowerCase() == 'kaos') {
                       detailPage = DetailKaos(product: product);
