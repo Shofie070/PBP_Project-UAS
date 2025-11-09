@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Import intl
 
 class DetailHoodie extends StatelessWidget {
   final Map<String, dynamic> product;
@@ -6,6 +7,9 @@ class DetailHoodie extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final formatRupiah =
+        NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+        
     return Scaffold(
       appBar: AppBar(
         title: Text(product['name'] ?? 'Detail Hoodie'),
@@ -27,16 +31,36 @@ class DetailHoodie extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (product['image'] != null)
-                        Image.asset(product['image'], height: 200),
+                        // --- GANTI KE IMAGE.NETWORK ---
+                        Image.network(
+                          product['image'],
+                          height: 200,
+                          fit: BoxFit.contain,
+                          loadingBuilder: (context, child, progress) {
+                            if (progress == null) return child;
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(Icons.error,
+                                size: 200, color: Colors.grey);
+                          },
+                        ),
                       const SizedBox(height: 16),
-                      Text(product['name'] ?? '',
-                          style: const TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold)),
+                      Text(
+                        product['name'] ?? '',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
                       const SizedBox(height: 8),
-                      Text('Rp ${product['price']}',
-                          style: const TextStyle(fontSize: 20)),
+                      // --- FORMAT HARGA ---
+                      Text(
+                        formatRupiah.format(product['price']),
+                        style: const TextStyle(fontSize: 20),
+                      ),
                       const SizedBox(height: 16),
-                      const Text('Detail khusus produk Hoodie.'),
+                      const Text('Detail khusus produk Hoodie dari API.'),
                       const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,

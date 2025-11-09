@@ -27,6 +27,7 @@ dependencies:
   url_launcher: ^6.1.10
   device_info_plus: ^12.2.0
   webview_flutter: ^4.13.0
+  dio: ^5.9.0
 
 dev_dependencies:
   flutter_test:

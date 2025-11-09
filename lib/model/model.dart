@@ -15,13 +15,35 @@ class UserModel {
   UserModel({required this.username, required this.email});
 }
 
+// --- PERUBAHAN DI SINI ---
 class Product {
-  final String name;
+  final int id;
+  final String name; // di API namanya 'title'
   final double price;
   final String image;
+  final String category;
 
-  Product({required this.name, required this.price, required this.image});
+  Product({
+    required this.id,
+    required this.name,
+    required this.price,
+    required this.image,
+    required this.category,
+  });
+
+  // Fungsi untuk mapping JSON dari API ke Model Product
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      id: json['id'] ?? 0,
+      name: json['title'] ?? 'No Title', // 'title' dari API di-map ke 'name'
+      price: (json['price'] as num?)?.toDouble() ?? 0.0, // 'price' dari API
+      image: json['image'] ?? '', // 'image' dari API
+      category: json['category'] ?? 'Uncategorized', // 'category' dari API
+    );
+  }
 }
+// --- BATAS PERUBAHAN ---
+
 
 class DashboardModel {
   final String title;
@@ -33,25 +55,21 @@ class DashboardModel {
   // Dummy cartModel getter
   List<Map<String, dynamic>> get cartModel => [];
 
+  // Data statis ini sudah tidak terpakai oleh 'product.dart'
+  // tapi kita biarkan saja, mungkin dipakai di tempat lain.
   List<Product> get products => [
         Product(
-            name: 'Kaos 1', price: 100000, image: 'assets/images/Kaos1.png'),
+            id: 1,
+            name: 'Kaos 1',
+            price: 100000,
+            image: 'assets/images/Kaos1.png',
+            category: 'Kaos'),
         Product(
-            name: 'Kaos 2', price: 120000, image: 'assets/images/Kaos2.png'),
-        Product(
-            name: 'Kaos 3', price: 150000, image: 'assets/images/Kaos3.png'),
-        Product(
-            name: 'Hoodie 1',
-            price: 200000,
-            image: 'assets/images/Hoodie1.png'),
-        Product(
-            name: 'Hoodie 2',
-            price: 220000,
-            image: 'assets/images/Hoodie2.png'),
-        Product(
-            name: 'Hoodie 3',
-            price: 250000,
-            image: 'assets/images/Hoodie3.png'),
+            id: 2,
+            name: 'Kaos 2',
+            price: 120000,
+            image: 'assets/images/Kaos2.png',
+            category: 'Kaos'),
       ];
 }
 
