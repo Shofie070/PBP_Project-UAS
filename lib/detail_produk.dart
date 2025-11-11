@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart'; // <--- Import sizer DITAMBAHKAN/DIPASTIKAN
 
 class DetailProduk extends StatelessWidget {
   final Map<String, dynamic> product;
@@ -30,7 +31,8 @@ class DetailProduk extends StatelessWidget {
                 // Product Image (Centered and Bigger)
                 Center(
                   child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 16),
+                    margin: EdgeInsets.symmetric(
+                        vertical: 2.h), // Menggunakan h, Dihapus const
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
@@ -47,18 +49,18 @@ class DetailProduk extends StatelessWidget {
                         "assets/images/kaos1.png", // Gambar kaos pertama
                         width: MediaQuery.of(context).size.width *
                             0.8, // Lebar 80% layar
-                        height: 300, // Tinggi gambar
+                        height: 40.h, // Menggunakan h
                         fit: BoxFit.contain, // Gambar tidak terpotong
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 2.h), // Menggunakan h, Dihapus const
 
                 // Product Details with White Background
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(4.w), // Menggunakan w, Dihapus const
                   decoration: BoxDecoration(
                     color: Colors.white, // Overlay putih untuk teks
                     borderRadius: BorderRadius.circular(16),
@@ -70,32 +72,35 @@ class DetailProduk extends StatelessWidget {
                       ),
                     ],
                   ),
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  margin: EdgeInsets.symmetric(
+                      horizontal: 4.w), // Menggunakan w, Dihapus const
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // Product Name
                       Text(
                         product["name"],
-                        style: const TextStyle(
-                          fontSize: 26,
+                        style: TextStyle(
+                          // Dihapus const
+                          fontSize: 17.sp, // Menggunakan sp
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 1.5.h), // Menggunakan h, Dihapus const
 
                       // Product Price
                       Text(
                         "Rp ${product["price"]}",
-                        style: const TextStyle(
-                          fontSize: 22,
+                        style: TextStyle(
+                          // Dihapus const
+                          fontSize: 15.sp, // Menggunakan sp
                           fontWeight: FontWeight.w600,
                           color: Colors.black87,
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 3.h), // Menggunakan h, Dihapus const
 
                       // Add to Cart Button
                       SizedBox(
@@ -112,14 +117,16 @@ class DetailProduk extends StatelessWidget {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.pinkAccent,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 2.h), // Menggunakan h, Dihapus const
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
+                            // Dihapus const
                             "Tambah ke Keranjang",
-                            style: TextStyle(fontSize: 18),
+                            style: TextStyle(fontSize: 13.sp), // Menggunakan sp
                           ),
                         ),
                       ),

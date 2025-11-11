@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // <--- TAMBAHKAN INI
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sizer/sizer.dart'; // <--- Import sizer ditambahkan
 import 'login.dart';
 import 'DashboardPage.dart'; // <--- Pastikan Anda punya file DashboardPage.dart
 import 'model/model.dart'; // <--- Untuk menggunakan UserModel
@@ -97,29 +98,32 @@ class SplashScreenState extends State<SplashScreen>
               position: _offsetAnimation,
               child: Image.asset(
                 'assets/images/splash.png',
-                width: 200,
-                height: 200,
+                width: 50.w, // Menggunakan w
+                height: 50.w, // Menggunakan w
               ),
             ),
-            const SizedBox(height: 40),
+            SizedBox(height: 5.h), // Menggunakan h, Dihapus const
 
             // Loading bar horizontal
-            const SizedBox(
-              width: 200,
-              child: LinearProgressIndicator(
+            SizedBox(
+              // Dihapus const
+              width: 50.w, // Menggunakan w
+              child: const LinearProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
                 backgroundColor: Colors.black12,
                 minHeight: 6,
               ),
             ),
 
-            const SizedBox(height: 20),
+            SizedBox(height: 3.h), // Menggunakan h, Dihapus const
 
             // Tambahan tulisan
-            const Text(
+            Text(
+              // Dihapus const
               "dibuat oleh: Sultan Raffi Suryanegara",
               style: TextStyle(
-                fontSize: 14,
+                // Dihapus const
+                fontSize: 10.sp, // Menggunakan sp
                 fontWeight: FontWeight.w500,
                 color: Colors.black54,
               ),

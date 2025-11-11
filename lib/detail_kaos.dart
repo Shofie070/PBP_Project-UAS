@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Import intl
+import 'package:sizer/sizer.dart'; // <--- Import sizer DITAMBAHKAN/DIPASTIKAN
 
 class DetailKaos extends StatelessWidget {
   final Map<String, dynamic> product;
@@ -22,11 +23,12 @@ class DetailKaos extends StatelessWidget {
           Center(
             child: SingleChildScrollView(
               child: Card(
-                margin: const EdgeInsets.symmetric(horizontal: 24),
+                margin: EdgeInsets.symmetric(
+                    horizontal: 10.w), // Menggunakan w, Dihapus const
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
                 child: Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(5.w), // Menggunakan w, Dihapus const
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -34,7 +36,7 @@ class DetailKaos extends StatelessWidget {
                         // --- GANTI KE IMAGE.NETWORK ---
                         Image.network(
                           product['image'],
-                          height: 200,
+                          height: 50.w, // Menggunakan w
                           fit: BoxFit.contain,
                           loadingBuilder: (context, child, progress) {
                             if (progress == null) return child;
@@ -42,26 +44,30 @@ class DetailKaos extends StatelessWidget {
                                 child: CircularProgressIndicator());
                           },
                           errorBuilder: (context, error, stackTrace) {
-                            return const Icon(Icons.error,
-                                size: 200, color: Colors.grey);
+                            return Icon(Icons.error, // Dihapus const
+                                size: 50.w,
+                                color: Colors.grey); // Menggunakan w
                           },
                         ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 2.h), // Menggunakan h, Dihapus const
                       Text(
                         product['name'] ?? '',
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            // Dihapus const
+                            fontSize: 16.sp, // Menggunakan sp
+                            fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 1.h), // Menggunakan h, Dihapus const
                       // --- FORMAT HARGA ---
                       Text(
                         formatRupiah.format(product['price']),
-                        style: const TextStyle(fontSize: 20),
+                        style: TextStyle(
+                            fontSize: 14.sp), // Menggunakan sp, Dihapus const
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 2.h), // Menggunakan h, Dihapus const
                       const Text('Detail produk kaos dari API.'),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 2.h), // Menggunakan h, Dihapus const
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart'; // <--- Import sizer DITAMBAHKAN
 
 class MenuAdmin extends StatelessWidget {
   const MenuAdmin({super.key});
@@ -23,7 +24,7 @@ class MenuAdmin extends StatelessWidget {
           // Content
           Center(
             child: Container(
-              padding: const EdgeInsets.all(24.0),
+              padding: EdgeInsets.all(6.w), // Menggunakan w, Dihapus const
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.95),
                 borderRadius: BorderRadius.circular(24),
@@ -41,9 +42,12 @@ class MenuAdmin extends StatelessWidget {
                 children: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      textStyle: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+                      padding: EdgeInsets.symmetric(
+                          vertical: 2.5.h), // Menggunakan h, Dihapus const
+                      textStyle: TextStyle(
+                          // Dihapus const
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.bold), // Menggunakan sp
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -53,12 +57,15 @@ class MenuAdmin extends StatelessWidget {
                     },
                     child: const Text('Detail Penjualan'),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 2.5.h), // Menggunakan h, Dihapus const
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      textStyle: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+                      padding: EdgeInsets.symmetric(
+                          vertical: 2.5.h), // Menggunakan h, Dihapus const
+                      textStyle: TextStyle(
+                          // Dihapus const
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.bold), // Menggunakan sp
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -68,12 +75,15 @@ class MenuAdmin extends StatelessWidget {
                     },
                     child: const Text('Aktivitas Login'),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 2.5.h), // Menggunakan h, Dihapus const
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      textStyle: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+                      padding: EdgeInsets.symmetric(
+                          vertical: 2.5.h), // Menggunakan h, Dihapus const
+                      textStyle: TextStyle(
+                          // Dihapus const
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.bold), // Menggunakan sp
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

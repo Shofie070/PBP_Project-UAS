@@ -42,7 +42,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     if (name != null && name.isNotEmpty) {
       _nameController.text = name;
     }
-    
+
     // Panggil loadInitialData di Cubit setelah argumen tersedia
     // Menggunakan Future.microtask untuk memastikan `context` dan `ModalRoute` tersedia
     // di saat initState (walaupun _loadUserNameAndEmail adalah async)
@@ -57,7 +57,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     super.didChangeDependencies();
     // Logika pemuatan arguments telah dipindahkan ke Cubit.
   }
-  
+
   // Fungsi _submit sekarang menerima Cubit dan State untuk data yang dibutuhkan
   void _submit(BuildContext context, CheckoutCubit cubit, CheckoutState state) {
     if (state.items.isEmpty) {
@@ -133,12 +133,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
         children: [
           // Background Image (Tidak berubah)
           Image.asset('assets/images/background.png', fit: BoxFit.cover),
-          
+
           // BlocBuilder akan merebuild Scaffold ketika state Cubit berubah
           BlocBuilder<CheckoutCubit, CheckoutState>(
             builder: (context, state) {
               final cubit = context.read<CheckoutCubit>();
-              
+
               return Scaffold(
                 backgroundColor: Colors.transparent,
                 appBar: AppBar(
@@ -212,7 +212,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                           fontWeight: FontWeight.bold)),
                                   const SizedBox(height: 8),
                                   if (state.items.isEmpty)
-                                    const Text('Tidak ada produk untuk checkout'),
+                                    const Text(
+                                        'Tidak ada produk untuk checkout'),
                                   if (state.items.isNotEmpty)
                                     ...state.items.map((p) {
                                       final price = (p['price'] is int)
@@ -231,7 +232,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                       );
                                     }),
                                   const SizedBox(height: 8),
-                                  Text('Subtotal: ${_currency.format(state.subtotal)}',
+                                  Text(
+                                      'Subtotal: ${_currency.format(state.subtotal)}',
                                       style: const TextStyle(
                                           fontWeight: FontWeight.bold)),
                                 ]),
@@ -255,7 +257,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold)),
                                   const SizedBox(height: 8),
-                                  ...List.generate(cubit.getShippingOptions.length, (i) {
+                                  ...List.generate(
+                                      cubit.getShippingOptions.length, (i) {
                                     final opt = cubit.getShippingOptions[i];
                                     return RadioListTile<int>(
                                       value: i,
@@ -270,13 +273,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                                 'Biaya: ${_currency.format(opt['cost'])}'),
                                           ]),
                                       // Ganti setState dengan memanggil Cubit
-                                      onChanged: (v) => cubit.selectShipping(v ?? 0),
+                                      onChanged: (v) =>
+                                          cubit.selectShipping(v ?? 0),
                                     );
                                   }),
                                   const SizedBox(height: 8),
                                   Text(
                                       'Ongkos kirim: ${_currency.format(cubit.shippingCost)}'),
-                                  Text('Total: ${_currency.format(cubit.grandTotal)}',
+                                  Text(
+                                      'Total: ${_currency.format(cubit.grandTotal)}',
                                       style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16)),
@@ -302,7 +307,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                           fontWeight: FontWeight.bold)),
                                   const SizedBox(height: 8),
                                   DropdownButtonFormField<String>(
-                                    value: state.paymentMethod, // Ambil nilai dari State
+                                    value: state
+                                        .paymentMethod, // Ambil nilai dari State
                                     items: const [
                                       DropdownMenuItem(
                                           value: 'Transfer Bank',
@@ -327,10 +333,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                           backgroundColor: Colors.pinkAccent,
                                           foregroundColor: Colors.white),
                                       // Panggil _submit dengan data Cubit dan State terbaru
-                                      onPressed: () => _submit(context, cubit, state),
+                                      onPressed: () =>
+                                          _submit(context, cubit, state),
                                       child: const Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 14.0),
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 14.0),
                                         child: Text('Bayar',
                                             style: TextStyle(fontSize: 16)),
                                       ),
