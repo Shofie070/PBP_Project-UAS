@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sizer/sizer.dart'; // <--- PASTIKAN IMPORT INI ADA!
-import 'login.dart';
+import 'package:sizer/sizer.dart';
+import 'app_router.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -56,11 +57,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
     // Navigasi ke halaman login setelah 1 detik
     Future.delayed(const Duration(seconds: 1), () {
-      Navigator.pushReplacement(
-        // ignore: use_build_context_synchronously
-        context,
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-      );
+      if (mounted) {
+        context.go(AppRoutes.login);
+      }
     });
   }
 
@@ -172,11 +171,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const LoginPage()),
-                          );
+                          context.go(AppRoutes.login);
                         },
                         child: const Text("Sudah punya akun? Login"),
                       ),

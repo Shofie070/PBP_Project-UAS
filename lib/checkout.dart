@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
-import 'package:sizer/sizer.dart'; // <--- Import sizer DITAMBAHKAN
+import 'package:sizer/sizer.dart';
 
 import 'checkout_cubit_impl.dart';
 import 'checkout_state.dart';
+import 'app_router.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -104,10 +106,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
               child: const Text('Batal')),
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(context); // close dialog
+              Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                   content: Text('Pembayaran sukses (simulasi)')));
-              Navigator.pop(context); // back from checkout
+              context.go(AppRoutes.dashboard);
             },
             child: const Text('Bayar'),
           ),

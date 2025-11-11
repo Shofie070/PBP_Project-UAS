@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:getwidget/getwidget.dart'; // Import GetWidget
-import 'package:flutter_application_1/register_page.dart';
+import 'package:go_router/go_router.dart';
+import 'package:getwidget/getwidget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sizer/sizer.dart'; // <--- Import sizer
-import 'DashboardPage.dart'; // Pastikan path ini benar
-import 'model/model.dart'; // Pastikan path ini benar
+import 'package:sizer/sizer.dart';
+import 'model/model.dart';
+import 'app_router.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -64,14 +64,12 @@ class _LoginPageState extends State<LoginPage> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('is_logged_in', true);
       await prefs.setString('current_user_email', adminEmail);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DashboardPage(
-            user: UserModel(username: 'Admin', email: adminEmail),
-          ),
-        ),
-      );
+      if (mounted) {
+        context.go(
+          AppRoutes.dashboard,
+          extra: UserModel(username: 'Admin', email: adminEmail),
+        );
+      }
       return;
     }
 
@@ -93,14 +91,12 @@ class _LoginPageState extends State<LoginPage> {
     if (email == storedEmail && password == storedPassword) {
       await prefs.setBool('is_logged_in', true);
       await prefs.setString('current_user_email', storedEmail);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DashboardPage(
-            user: UserModel(username: storedName, email: storedEmail),
-          ),
-        ),
-      );
+      if (mounted) {
+        context.go(
+          AppRoutes.dashboard,
+          extra: UserModel(username: storedName, email: storedEmail),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -197,11 +193,7 @@ class _LoginPageState extends State<LoginPage> {
                       SizedBox(height: 2.h), // Menggunakan h
                       TextButton(
                         onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const RegisterPage()),
-                          );
+                          context.go(AppRoutes.register);
                         },
                         child: const Text("Belum punya akun? Daftar"),
                       ),

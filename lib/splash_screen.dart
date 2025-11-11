@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sizer/sizer.dart'; // <--- Import sizer ditambahkan
-import 'login.dart';
-import 'DashboardPage.dart'; // <--- Pastikan Anda punya file DashboardPage.dart
-import 'model/model.dart'; // <--- Untuk menggunakan UserModel
+import 'package:sizer/sizer.dart';
+import 'model/model.dart';
+import 'app_router.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -54,27 +54,25 @@ class SplashScreenState extends State<SplashScreen>
 
     if (isLoggedIn && currentEmail != null && mounted) {
       // Jika user persistent login, masuk ke dashboard
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => DashboardPage(
-            user: UserModel(username: username ?? 'User', email: currentEmail),
-          ),
-        ),
-      );
+      if (mounted) {
+        context.go(
+          AppRoutes.dashboard,
+          extra: UserModel(username: username ?? 'User', email: currentEmail),
+        );
+      }
     } else if (currentEmail != null && username != null && mounted) {
       // Backward compatible: jika pernah registrasi tapi belum set is_logged_in
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => DashboardPage(
-            user: UserModel(username: username, email: currentEmail),
-          ),
-        ),
-      );
+      if (mounted) {
+        context.go(
+          AppRoutes.dashboard,
+          extra: UserModel(username: username, email: currentEmail),
+        );
+      }
     } else if (mounted) {
       // Jika data tidak ada (belum login), arahkan ke LoginPage
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-      );
+      if (mounted) {
+        context.go(AppRoutes.login);
+      }
     }
   }
 

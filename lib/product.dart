@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'detail_produk.dart'; // default detail produk
-import 'detail_kaos.dart';
-import 'detail_hoodie.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:sizer/sizer.dart'; // <--- BARU: Import sizer
-
-// IMPORT SERVICE DAN MODEL BARU
+import 'package:sizer/sizer.dart';
 import 'api_service.dart';
 import 'model/model.dart';
+import 'app_router.dart';
 
 // 1. UBAH JADI STATEFULWIDGET
 class ProductPage extends StatefulWidget {
@@ -48,7 +45,7 @@ class _ProductPageState extends State<ProductPage> {
         backgroundColor: Colors.pinkAccent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.go(AppRoutes.dashboard),
         ),
       ),
       body: Stack(
@@ -165,28 +162,17 @@ class _ProductPageState extends State<ProductPage> {
                           color: Colors.pinkAccent,
                           size: 6.w, // Menggunakan w
                         ),
-                        onTap: () async {
-                          Widget detailPage;
-                          // 'productMap' sekarang datanya dari API
-                          // Logika ini masih sama kayak kodemu
+                        onTap: () {
+                          String routePath;
                           if (widget.category.toLowerCase() == 'kaos') {
-                            detailPage = DetailKaos(product: productMap);
+                            routePath = AppRoutes.detailKaos;
                           } else if (widget.category.toLowerCase() ==
                               'hoodie') {
-                            detailPage = DetailHoodie(product: productMap);
+                            routePath = AppRoutes.detailHoodie;
                           } else {
-                            // Aksesoris akan pakai DetailProduk (default)
-                            detailPage = DetailProduk(product: productMap);
+                            routePath = AppRoutes.detailProduk;
                           }
-
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => detailPage),
-                          );
-                          if (result != null &&
-                              result is Map<String, dynamic>) {
-                            widget.onAddToCart(result);
-                          }
+                          context.push(routePath, extra: productMap);
                         },
                       ),
                     );

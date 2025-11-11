@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:sizer/sizer.dart'; // <--- BARU: Import sizer
+import 'package:go_router/go_router.dart';
+import 'package:sizer/sizer.dart';
 import 'model/model.dart';
-import 'product.dart';
-import 'cart.dart';
-import 'about_us.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'login.dart'; // Make sure this is the correct file where LoginPage is defined
-import 'menu_admin.dart';
+import 'app_router.dart';
 
 class DashboardPage extends StatefulWidget {
   final UserModel user;
@@ -22,31 +19,19 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _buildCatalog(BuildContext context) {
     final categories = CategoryRepository.getCategories();
     return GridView.builder(
-      padding: EdgeInsets.all(4.w), // Menggunakan w
+      padding: EdgeInsets.all(4.w),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 0.75, // Disesuaikan
+        childAspectRatio: 0.75,
       ),
       itemCount: categories.length,
       itemBuilder: (context, index) {
         final category = categories[index];
         return GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => ProductPage(
-                  category: category,
-                  onAddToCart: (product) {
-                    setState(() {
-                      _cart.add(product);
-                    });
-                  },
-                ),
-              ),
-            );
+            context.go('${AppRoutes.product}/$category');
           },
           child: Card(
             shape: RoundedRectangleBorder(
@@ -57,18 +42,16 @@ class _DashboardPageState extends State<DashboardPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CircleAvatar(
-                  radius: 10.w, // Menggunakan w
+                  radius: 10.w,
                   backgroundColor: Colors.pinkAccent.withOpacity(0.2),
-                  child: Icon(Icons.category,
-                      color: Colors.pinkAccent, size: 8.w), // Menggunakan w
+                  child:
+                      Icon(Icons.category, color: Colors.pinkAccent, size: 8.w),
                 ),
-                SizedBox(height: 1.h), // Menggunakan h
+                SizedBox(height: 1.h),
                 Text(
                   category,
-                  style: TextStyle(
-                      // Dihapus const
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.bold), // Menggunakan sp
+                  style:
+                      TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -90,19 +73,7 @@ class _DashboardPageState extends State<DashboardPage> {
         icon: Icons.shopping_cart,
         onTap: (context) {
           Navigator.pop(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => CartPage(
-                cart: _cart,
-                onRemove: (index) {
-                  setState(() {
-                    _cart.removeAt(index);
-                  });
-                },
-              ),
-            ),
-          );
+          context.go(AppRoutes.cart);
         },
       ),
       DrawerItem(
@@ -110,10 +81,7 @@ class _DashboardPageState extends State<DashboardPage> {
         icon: Icons.info,
         onTap: (context) {
           Navigator.pop(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AboutUs()),
-          );
+          context.go(AppRoutes.aboutUs);
         },
       ),
     ];
@@ -148,37 +116,22 @@ class _DashboardPageState extends State<DashboardPage> {
                   IconButton(
                     icon: const Icon(Icons.shopping_cart),
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => CartPage(
-                            cart: _cart,
-                            onRemove: (index) {
-                              setState(() {
-                                _cart.removeAt(index);
-                              });
-                            },
-                          ),
-                        ),
-                      );
+                      context.go(AppRoutes.cart);
                     },
                   ),
                   if (_cart.isNotEmpty)
                     Positioned(
-                      right: 1.w, // Menggunakan w
-                      top: 1.h, // Menggunakan h
+                      right: 1.w,
+                      top: 1.h,
                       child: Container(
-                        padding: EdgeInsets.all(1.w), // Menggunakan w
+                        padding: EdgeInsets.all(1.w),
                         decoration: const BoxDecoration(
                           color: Colors.red,
                           shape: BoxShape.circle,
                         ),
                         child: Text(
                           _cart.length.toString(),
-                          style: TextStyle(
-                              // Dihapus const
-                              color: Colors.white,
-                              fontSize: 8.sp), // Menggunakan sp
+                          style: TextStyle(color: Colors.white, fontSize: 8.sp),
                         ),
                       ),
                     ),
@@ -223,12 +176,8 @@ class _DashboardPageState extends State<DashboardPage> {
                     leading: const Icon(Icons.admin_panel_settings),
                     title: const Text("Menu Admin"),
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MenuAdmin(),
-                        ),
-                      );
+                      Navigator.pop(context);
+                      context.go(AppRoutes.menuAdmin);
                     },
                   ),
                 ListTile(
@@ -238,11 +187,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     final prefs = await SharedPreferences.getInstance();
                     await prefs.remove('is_logged_in');
                     await prefs.remove('current_user_email');
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginPage()),
-                      (route) => false,
-                    );
+                    if (mounted) {
+                      context.go(AppRoutes.login);
+                    }
                   },
                 ),
               ],

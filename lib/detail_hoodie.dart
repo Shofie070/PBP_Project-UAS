@@ -9,9 +9,13 @@ class DetailHoodie extends StatelessWidget {
   Widget build(BuildContext context) {
     final formatRupiah =
         NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
-        
+
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: Text(product['name'] ?? 'Detail Hoodie'),
         backgroundColor: Colors.pinkAccent,
       ),

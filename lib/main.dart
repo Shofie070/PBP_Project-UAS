@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sizer/sizer.dart'; // <--- BARU: Import sizer
-import 'splash_screen.dart';
-import 'checkout.dart';
+import 'package:sizer/sizer.dart';
+import 'app_router.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,14 +12,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Sizer(
-      // <--- BARU: Bungkus dengan Sizer
       builder: (context, orientation, deviceType) {
-        return MaterialApp(
+        return MaterialApp.router(
           debugShowCheckedModeBanner: false,
-          home: const SplashScreen(),
-          routes: {
-            '/checkout': (context) => const CheckoutPage(),
-          },
+          routerConfig: appRouter,
         );
       },
     );

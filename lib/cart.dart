@@ -1,21 +1,26 @@
 // File: lib/cart.dart
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/cubic_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_application_1/cart_state.dart'; 
+import 'package:flutter_application_1/cart_state.dart';
+import 'app_router.dart';
 
 class CartPage extends StatelessWidget {
   // Parameter 'cart' dan 'onRemove' Dihilangkan,
   // data dan fungsi diambil dari Bloc.
 
-  const CartPage({super.key, required Null Function(dynamic index) onRemove, required List<Map<String, dynamic>> cart});
+  const CartPage(
+      {super.key,
+      required Null Function(dynamic index) onRemove,
+      required List<Map<String, dynamic>> cart});
 
   @override
   Widget build(BuildContext context) {
     // Sediakan CartBloc untuk seluruh widget di bawahnya
     return BlocProvider(
-      create: (context) => CartBloc(), 
+      create: (context) => CartBloc(),
       child: Stack(
         children: [
           // Background image (sama dengan dashboard)
@@ -25,7 +30,7 @@ class CartPage extends StatelessWidget {
             width: double.infinity,
             height: double.infinity,
           ),
-          
+
           // BlocBuilder untuk merebuild UI saat state keranjang berubah
           BlocBuilder<CartBloc, CartState>(
             builder: (context, state) {
@@ -39,7 +44,7 @@ class CartPage extends StatelessWidget {
                   backgroundColor: Colors.pinkAccent,
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => context.go(AppRoutes.dashboard),
                   ),
                 ),
                 body: cart.isEmpty
@@ -59,13 +64,14 @@ class CartPage extends StatelessWidget {
                           final product = cart[index];
                           final productName = product["name"] ?? 'No Name';
                           final productPrice = product["price"] ?? 0;
-                          
+
                           return Dismissible(
                             key: ValueKey(productName + index.toString()),
                             direction: DismissDirection.endToStart,
                             background: Container(
                               alignment: Alignment.centerRight,
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
                               color: Colors.red,
                               child:
                                   const Icon(Icons.delete, color: Colors.white),
@@ -74,8 +80,7 @@ class CartPage extends StatelessWidget {
                               // Panggil method dari Bloc
                               bloc.removeItem(index);
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content: Text('$productName dihapus')),
+                                SnackBar(content: Text('$productName dihapus')),
                               );
                             },
                             child: Card(
@@ -94,15 +99,12 @@ class CartPage extends StatelessWidget {
                                           color: Colors.green),
                                       tooltip: 'Checkout',
                                       onPressed: () {
-                                        // Navigasi ke checkout dengan item ini
-                                        Navigator.pushNamed(context, '/checkout',
-                                            arguments: product);
+                                        context.go(AppRoutes.checkout);
                                       },
                                     ),
                                     IconButton(
                                       icon: const Icon(Icons.delete,
                                           color: Colors.red),
-                                      // Panggil method dari Bloc
                                       onPressed: () => bloc.removeItem(index),
                                     ),
                                   ],
