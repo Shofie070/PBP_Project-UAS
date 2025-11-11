@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart'; // Import GetWidget
 import 'package:flutter_application_1/register_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sizer/sizer.dart'; // <--- Import sizer
 import 'DashboardPage.dart'; // Pastikan path ini benar
 import 'model/model.dart'; // Pastikan path ini benar
 
@@ -29,8 +30,11 @@ class _LoginPageState extends State<LoginPage> {
           Icons.login,
           color: Colors.white,
         ),
-        textStyle: const TextStyle(
-            fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+        textStyle: TextStyle(
+            // Dihapus 'const'
+            fontSize: 12.sp, // Menggunakan sp
+            color: Colors.white,
+            fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -121,34 +125,38 @@ class _LoginPageState extends State<LoginPage> {
               child: Card(
                 color: const Color(0xFFF8BBD0), // Pink pastel
                 elevation: 8,
-                margin: const EdgeInsets.symmetric(horizontal: 24),
+                margin: EdgeInsets.symmetric(horizontal: 10.w), // Menggunakan w
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(5.w), // Menggunakan w
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
+                      Text(
+                        // Dihapus 'const'
                         "Selamat Datang!",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 28,
+                          // Dihapus 'const'
+                          fontSize: 18.sp, // Menggunakan sp
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFFE573B4), // Pink lucu
+                          color: const Color(0xFFE573B4), // Pink lucu
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      const Text(
+                      SizedBox(height: 1.h), // Menggunakan h
+                      Text(
+                        // Dihapus 'const'
                         "Silakan masuk untuk melanjutkan",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 16,
+                          // Dihapus 'const'
+                          fontSize: 12.sp, // Menggunakan sp
                           color: Colors.grey,
                         ),
                       ),
-                      const SizedBox(height: 40),
+                      SizedBox(height: 5.h), // Menggunakan h
                       TextField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
@@ -160,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                           prefixIcon: const Icon(Icons.email),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 2.h), // Menggunakan h
                       TextField(
                         controller: _passwordController,
                         obscureText: _obscureText,
@@ -184,9 +192,9 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 3.h), // Menggunakan h
                       getLoginButton(),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 2.h), // Menggunakan h
                       TextButton(
                         onPressed: () {
                           Navigator.pushReplacement(

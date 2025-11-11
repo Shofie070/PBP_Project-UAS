@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import 'package:sizer/sizer.dart'; // <--- Import sizer DITAMBAHKAN
 
 import 'checkout_cubit_impl.dart';
 import 'checkout_state.dart';
@@ -146,7 +147,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   backgroundColor: Colors.pinkAccent,
                 ),
                 body: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(4.w), // Menggunakan w, Dihapus const
                   child: Form(
                     key: _formKey,
                     child: Column(
@@ -158,15 +159,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12)),
                           child: Padding(
-                            padding: const EdgeInsets.all(12.0),
+                            padding: EdgeInsets.all(
+                                3.w), // Menggunakan w, Dihapus const
                             child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('Detail Penerima',
+                                  Text('Detail Penerima', // Dihapus const
                                       style: TextStyle(
-                                          fontSize: 18,
+                                          // Dihapus const
+                                          fontSize: 14.sp, // Menggunakan sp
                                           fontWeight: FontWeight.bold)),
-                                  const SizedBox(height: 8),
+                                  SizedBox(
+                                      height:
+                                          1.h), // Menggunakan h, Dihapus const
                                   TextFormField(
                                     controller: _nameController,
                                     decoration: const InputDecoration(
@@ -177,7 +182,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                             ? 'Masukkan nama penerima'
                                             : null,
                                   ),
-                                  const SizedBox(height: 12),
+                                  SizedBox(
+                                      height: 1.5
+                                          .h), // Menggunakan h, Dihapus const
                                   TextFormField(
                                     controller: _emailController,
                                     readOnly: true,
@@ -194,7 +201,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           ),
                         ),
 
-                        const SizedBox(height: 12),
+                        SizedBox(height: 1.5.h), // Menggunakan h, Dihapus const
 
                         // --- Daftar Produk Card (Menggunakan state.items) ---
                         Card(
@@ -202,15 +209,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12)),
                           child: Padding(
-                            padding: const EdgeInsets.all(12.0),
+                            padding: EdgeInsets.all(
+                                3.w), // Menggunakan w, Dihapus const
                             child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('Daftar Produk',
+                                  Text('Daftar Produk', // Dihapus const
                                       style: TextStyle(
-                                          fontSize: 18,
+                                          // Dihapus const
+                                          fontSize: 14.sp, // Menggunakan sp
                                           fontWeight: FontWeight.bold)),
-                                  const SizedBox(height: 8),
+                                  SizedBox(
+                                      height:
+                                          1.h), // Menggunakan h, Dihapus const
                                   if (state.items.isEmpty)
                                     const Text(
                                         'Tidak ada produk untuk checkout'),
@@ -223,15 +234,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                         contentPadding: EdgeInsets.zero,
                                         leading: p['image'] != null
                                             ? Image.asset(p['image'],
-                                                width: 56,
-                                                height: 56,
+                                                width: 14.w, // Menggunakan w
+                                                height: 14.w, // Menggunakan w
                                                 fit: BoxFit.contain)
-                                            : const Icon(Icons.image, size: 40),
+                                            : Icon(Icons.image,
+                                                size: 10.w), // Menggunakan w
                                         title: Text(p['name'] ?? ''),
                                         subtitle: Text(_currency.format(price)),
                                       );
                                     }),
-                                  const SizedBox(height: 8),
+                                  SizedBox(
+                                      height:
+                                          1.h), // Menggunakan h, Dihapus const
                                   Text(
                                       'Subtotal: ${_currency.format(state.subtotal)}',
                                       style: const TextStyle(
@@ -240,7 +254,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           ),
                         ),
 
-                        const SizedBox(height: 12),
+                        SizedBox(height: 1.5.h), // Menggunakan h, Dihapus const
 
                         // --- Pengiriman Card (Menggunakan state.selectedShippingIndex) ---
                         Card(
@@ -248,15 +262,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12)),
                           child: Padding(
-                            padding: const EdgeInsets.all(12.0),
+                            padding: EdgeInsets.all(
+                                3.w), // Menggunakan w, Dihapus const
                             child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('Pengiriman',
+                                  Text('Pengiriman', // Dihapus const
                                       style: TextStyle(
-                                          fontSize: 18,
+                                          // Dihapus const
+                                          fontSize: 14.sp, // Menggunakan sp
                                           fontWeight: FontWeight.bold)),
-                                  const SizedBox(height: 8),
+                                  SizedBox(
+                                      height:
+                                          1.h), // Menggunakan h, Dihapus const
                                   ...List.generate(
                                       cubit.getShippingOptions.length, (i) {
                                     final opt = cubit.getShippingOptions[i];
@@ -277,19 +295,22 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                           cubit.selectShipping(v ?? 0),
                                     );
                                   }),
-                                  const SizedBox(height: 8),
+                                  SizedBox(
+                                      height:
+                                          1.h), // Menggunakan h, Dihapus const
                                   Text(
                                       'Ongkos kirim: ${_currency.format(cubit.shippingCost)}'),
                                   Text(
                                       'Total: ${_currency.format(cubit.grandTotal)}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
+                                          // Dihapus const
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 16)),
+                                          fontSize: 12.sp)), // Menggunakan sp
                                 ]),
                           ),
                         ),
 
-                        const SizedBox(height: 12),
+                        SizedBox(height: 1.5.h), // Menggunakan h, Dihapus const
 
                         // --- Metode Pembayaran Card (Menggunakan state.paymentMethod) ---
                         Card(
@@ -297,15 +318,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12)),
                           child: Padding(
-                            padding: const EdgeInsets.all(12.0),
+                            padding: EdgeInsets.all(
+                                3.w), // Menggunakan w, Dihapus const
                             child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('Metode Pembayaran',
+                                  Text('Metode Pembayaran', // Dihapus const
                                       style: TextStyle(
-                                          fontSize: 18,
+                                          // Dihapus const
+                                          fontSize: 14.sp, // Menggunakan sp
                                           fontWeight: FontWeight.bold)),
-                                  const SizedBox(height: 8),
+                                  SizedBox(
+                                      height:
+                                          1.h), // Menggunakan h, Dihapus const
                                   DropdownButtonFormField<String>(
                                     value: state
                                         .paymentMethod, // Ambil nilai dari State
@@ -325,7 +350,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                     decoration: const InputDecoration(
                                         border: OutlineInputBorder()),
                                   ),
-                                  const SizedBox(height: 12),
+                                  SizedBox(
+                                      height: 1.5
+                                          .h), // Menggunakan h, Dihapus const
                                   SizedBox(
                                     width: double.infinity,
                                     child: ElevatedButton(
@@ -335,11 +362,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                       // Panggil _submit dengan data Cubit dan State terbaru
                                       onPressed: () =>
                                           _submit(context, cubit, state),
-                                      child: const Padding(
+                                      child: Padding(
+                                        // Dihapus const
                                         padding: EdgeInsets.symmetric(
-                                            vertical: 14.0),
+                                            vertical: 1.8.h), // Menggunakan h
                                         child: Text('Bayar',
-                                            style: TextStyle(fontSize: 16)),
+                                            style: TextStyle(
+                                                fontSize:
+                                                    12.sp)), // Menggunakan sp
                                       ),
                                     ),
                                   ),

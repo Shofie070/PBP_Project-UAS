@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart'; // <--- BARU: Import sizer
 import 'model/model.dart';
 import 'product.dart';
 import 'cart.dart';
@@ -21,12 +22,12 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _buildCatalog(BuildContext context) {
     final categories = CategoryRepository.getCategories();
     return GridView.builder(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(4.w), // Menggunakan w
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 0.8,
+        childAspectRatio: 0.75, // Disesuaikan
       ),
       itemCount: categories.length,
       itemBuilder: (context, index) {
@@ -56,16 +57,18 @@ class _DashboardPageState extends State<DashboardPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CircleAvatar(
-                  radius: 40,
+                  radius: 10.w, // Menggunakan w
                   backgroundColor: Colors.pinkAccent.withOpacity(0.2),
-                  child: const Icon(Icons.category,
-                      color: Colors.pinkAccent, size: 40),
+                  child: Icon(Icons.category,
+                      color: Colors.pinkAccent, size: 8.w), // Menggunakan w
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 1.h), // Menggunakan h
                 Text(
                   category,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      // Dihapus const
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold), // Menggunakan sp
                 ),
               ],
             ),
@@ -162,18 +165,20 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                   if (_cart.isNotEmpty)
                     Positioned(
-                      right: 6,
-                      top: 6,
+                      right: 1.w, // Menggunakan w
+                      top: 1.h, // Menggunakan h
                       child: Container(
-                        padding: const EdgeInsets.all(4),
+                        padding: EdgeInsets.all(1.w), // Menggunakan w
                         decoration: const BoxDecoration(
                           color: Colors.red,
                           shape: BoxShape.circle,
                         ),
                         child: Text(
                           _cart.length.toString(),
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 12),
+                          style: TextStyle(
+                              // Dihapus const
+                              color: Colors.white,
+                              fontSize: 8.sp), // Menggunakan sp
                         ),
                       ),
                     ),
@@ -185,15 +190,16 @@ class _DashboardPageState extends State<DashboardPage> {
                     backgroundColor: Colors.white,
                     child: Icon(Icons.person, color: Colors.pinkAccent),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 2.w), // Menggunakan w
                   Text(
                     widget.user.username,
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: TextStyle(
+                      // Dihapus const
+                      fontSize: 12.sp, // Menggunakan sp
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 4.w), // Menggunakan w
                 ],
               ),
             ],

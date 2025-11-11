@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart'; // <--- Import sizer DITAMBAHKAN
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutUs extends StatelessWidget {
@@ -22,13 +23,14 @@ class AboutUs extends StatelessWidget {
             child: SingleChildScrollView(
               child: Card(
                 color: Colors.white.withOpacity(0.85),
-                margin: const EdgeInsets.symmetric(horizontal: 20),
+                margin: EdgeInsets.symmetric(
+                    horizontal: 8.w), // Menggunakan w, Dihapus const
                 elevation: 6,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(5.w), // Menggunakan w, Dihapus const
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -37,25 +39,31 @@ class AboutUs extends StatelessWidget {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.asset('assets/images/FOTO KUU.jpg',
-                            height: 180, fit: BoxFit.cover),
+                            height: 25.h, fit: BoxFit.cover), // Menggunakan h
                       ),
-                      const SizedBox(height: 12),
-                      const Text(
+                      SizedBox(height: 1.5.h), // Menggunakan h, Dihapus const
+                      Text(
+                        // Dihapus const
                         'd’ÉTOILE WEAR',
                         style: TextStyle(
-                          fontSize: 22,
+                          // Dihapus const
+                          fontSize: 16.sp, // Menggunakan sp
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      const Text(
+                      SizedBox(height: 1.h), // Menggunakan h, Dihapus const
+                      Text(
+                        // Dihapus const
                         'Chez ÉTOILE WEAR, nous croyons que la mode est plus qu’un vêtement — c’est une expression de lumière intérieure. Inspirée par le mot étoile, notre marque célèbre la beauté de l’authenticité et le courage d’être soi-même. Chaque collection naît d’un équilibre entre minimalisme, créativité et mouvement, reflétant l’harmonie subtile entre élégance et liberté. Nous ne suivons pas les tendances : nous traçons notre propre voie, guidés par l’éclat de ceux qui osent briller différemment..',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 16, color: Colors.black87),
+                        style: TextStyle(
+                            fontSize: 12.sp,
+                            color: Colors
+                                .black87), // Menggunakan sp, Dihapus const
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 2.h), // Menggunakan h, Dihapus const
                       const Divider(),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 1.h), // Menggunakan h, Dihapus const
                       const ListTile(
                         leading: Icon(Icons.email, color: Colors.pinkAccent),
                         title: Text('Email'),
@@ -96,12 +104,12 @@ class AboutUs extends StatelessWidget {
                           }
                         },
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 1.h), // Menggunakan h, Dihapus const
                       const Divider(),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 1.h), // Menggunakan h, Dihapus const
                       const Text('Team',
                           style: TextStyle(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 1.h), // Menggunakan h, Dihapus const
                       const ListTile(
                         leading: CircleAvatar(child: Text('SR')),
                         title: Text('Sultan Raffi'),
@@ -112,9 +120,12 @@ class AboutUs extends StatelessWidget {
                         title: Text('Sultan Raff1'),
                         subtitle: Text('Support'),
                       ),
-                      const SizedBox(height: 12),
-                      const Text('Versi aplikasi 1.0.0',
-                          style: TextStyle(color: Colors.black54)),
+                      SizedBox(height: 1.5.h), // Menggunakan h, Dihapus const
+                      Text('Versi aplikasi 1.0.0', // Dihapus const
+                          style: TextStyle(
+                              color: Colors.black54,
+                              fontSize:
+                                  10.sp)), // Menggunakan sp, Dihapus const
                     ],
                   ),
                 ),

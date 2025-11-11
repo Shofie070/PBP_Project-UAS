@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sizer/sizer.dart'; // <--- PASTIKAN IMPORT INI ADA!
 import 'login.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -67,7 +68,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
-        fit: StackFit.expand,
+        fit: StackFit.expand, // Menggunakan StackFit.expand
         children: [
           // Background Image
           Image.asset(
@@ -78,34 +79,37 @@ class _RegisterPageState extends State<RegisterPage> {
             child: SingleChildScrollView(
               child: Card(
                 elevation: 8,
-                margin: const EdgeInsets.symmetric(horizontal: 24),
+                margin:
+                    EdgeInsets.symmetric(horizontal: 10.w), // Unit responsif
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(5.w), // Unit responsif
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
+                      Text(
+                        // Dihapus const
                         "Buat Akun Baru",
                         style: TextStyle(
-                          fontSize: 22,
+                          // Dihapus const
+                          fontSize: 16.sp, // Unit responsif
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 3.h), // Unit responsif
                       TextField(
                         controller: _nameController,
                         decoration: const InputDecoration(
                           labelText: "Nama",
                           prefixIcon: Icon(Icons.person),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.zero, //
+                            borderRadius: BorderRadius.zero,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 2.h), // Unit responsif
                       TextField(
                         controller: _emailController,
                         decoration: const InputDecoration(
@@ -116,7 +120,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 2.h), // Unit responsif
                       TextField(
                         controller: _passwordController,
                         obscureText: true,
@@ -128,7 +132,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 2.h), // Unit responsif
                       TextField(
                         controller: _confirmController,
                         obscureText: true,
@@ -140,24 +144,27 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 3.h), // Unit responsif
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
                                 const Color.fromARGB(255, 200, 200, 200),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 1.8.h), // Unit responsif
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(0), //
+                              borderRadius: BorderRadius.circular(0),
                             ),
                           ),
                           onPressed: _register,
-                          child: const Text(
+                          child: Text(
+                            // Dihapus const
                             "Daftar",
                             style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black, //
+                              // Dihapus const
+                              fontSize: 12.sp, // Unit responsif
+                              color: Colors.black,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
