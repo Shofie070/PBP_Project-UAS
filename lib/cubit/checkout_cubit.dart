@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 
 // Import the Cubit implementation and its State
 import 'checkout_cubit_impl.dart';
-import 'checkout_state.dart';
+import '../page/checkout_state.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});

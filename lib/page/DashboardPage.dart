@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
-import 'model/model.dart';
+import '../model/model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'app_router.dart';
+import '../service/app_router.dart';
 
 class DashboardPage extends StatefulWidget {
   final UserModel user;

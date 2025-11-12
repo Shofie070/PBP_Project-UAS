@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_application_1/cubic_bloc.dart';
+import 'package:flutter_application_1/bloc/cubic_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_application_1/cart_state.dart';
-import 'app_router.dart';
+import 'package:flutter_application_1/page/cart_state.dart';
+import '../service/app_router.dart';
 
 class CartPage extends StatelessWidget {
   // Parameter 'cart' dan 'onRemove' Dihilangkan,

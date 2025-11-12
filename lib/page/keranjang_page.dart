@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'model/model.dart';
+import '../model/model.dart';
 
 class KeranjangPage extends StatefulWidget {
   final DashboardModel cartModel;

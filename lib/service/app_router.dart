@@ -1,24 +1,22 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-// Pages
-import 'splash_screen.dart';
-import 'login.dart';
-import 'register_page.dart';
-import 'DashboardPage.dart';
-import 'product.dart';
-import 'cart.dart';
-import 'checkout.dart';
-import 'profile.dart';
-import 'about_us.dart';
-import 'menu_admin.dart';
-import 'detail_produk.dart';
-import 'detail_kaos.dart';
-import 'detail_hoodie.dart';
+import '../page/splash_screen.dart';
+import '../page/login.dart';
+import '../page/register_page.dart';
+import '../page/DashboardPage.dart';
+import '../page/product.dart';
+import '../page/cart.dart';
+import '../page/checkout.dart';
+import '../page/profile.dart';
+import '../page/about_us.dart';
+import '../page/menu_admin.dart';
+import '../page/detail_produk.dart';
+import '../page/detail_kaos.dart';
+import '../page/detail_hoodie.dart';
 
 // Models
-import 'model/model.dart';
+import '../model/model.dart';
 
 // Wrapper widget untuk Dashboard dengan auto-load user
 class DashboardPageWrapper extends StatefulWidget {

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
-import 'api_service.dart';
-import 'model/model.dart';
-import 'app_router.dart';
+import '../service/api_service.dart';
+import '../model/model.dart';
+import '../service/app_router.dart';
 
 // 1. UBAH JADI STATEFULWIDGET
 class ProductPage extends StatefulWidget {

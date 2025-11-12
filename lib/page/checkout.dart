@@ -5,9 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 
-import 'checkout_cubit_impl.dart';
+import '../cubit/checkout_cubit_impl.dart';
 import 'checkout_state.dart';
-import 'app_router.dart';
+import '../service/app_router.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});

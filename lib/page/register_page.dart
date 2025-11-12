@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
-import 'app_router.dart';
+import '../service/app_router.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});

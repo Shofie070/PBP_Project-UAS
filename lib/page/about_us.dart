@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/about_state.dart';
+import 'package:flutter_application_1/cubit/about_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
-import '../cubit/about_cubit.dart';
-import '../cubit/about_state.dart';
+import '../../cubit/about_cubit.dart';
+import '../../cubit/about_state.dart';
 
 class AboutUs extends StatelessWidget {
   const AboutUs({super.key});

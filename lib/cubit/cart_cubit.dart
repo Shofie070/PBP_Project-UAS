@@ -1,6 +1,6 @@
 // Lokasi: lib/model/cart_cubit.dart
 import 'package:bloc/bloc.dart';
-import 'package:flutter_application_1/cart_state.dart';
+import 'package:flutter_application_1/page/cart_state.dart';
 // import 'cart_state.dart'; // Jika dipisah
 
 class CartCubit extends Cubit<CartState> {

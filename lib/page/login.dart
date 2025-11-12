@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
-import 'model/model.dart';
-import 'app_router.dart';
+import '../model/model.dart';
+import '../service/app_router.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

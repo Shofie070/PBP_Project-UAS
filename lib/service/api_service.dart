@@ -1,22 +1,19 @@
 import 'package:dio/dio.dart';
-import 'model/model.dart'; // Import model Product
+import '../model/model.dart'; // Import model Product
 
 class ApiService {
   final Dio _dio = Dio();
   final String _baseUrl = 'https://fakestoreapi.com';
 
-  // Fungsi untuk mengambil produk berdasarkan kategori
   Future<List<Product>> getProductsByCategory(String category) async {
     
-    // API-nya pakai "men's clothing" & "women's clothing"
-    // Kita mapping kategori dari app kamu ke kategori API
     String apiCategory;
     if (category.toLowerCase() == 'kaos') {
-      apiCategory = "men's clothing"; // Kaos kita anggap Baju Pria
+      apiCategory = "men's clothing"; 
     } else if (category.toLowerCase() == 'hoodie') {
-      apiCategory = "women's clothing"; // Hoodie kita anggap Baju Wanita
+      apiCategory = "women's clothing"; 
     } else {
-      // Kategori "Aksesoris" di API-nya "jewelery"
+      
       apiCategory = "jewelery"; 
     }
 

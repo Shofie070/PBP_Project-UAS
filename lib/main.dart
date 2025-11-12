@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
-import 'app_router.dart';
+import 'service/app_router.dart';
 
 void main() {
   runApp(const MyApp());
