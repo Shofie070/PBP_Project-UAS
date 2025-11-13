@@ -182,7 +182,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   decoration: const BoxDecoration(
                     image: DecorationImage(
                       // --- GANTI PATH INI DENGAN GAMBAR ANDA ---
-                      image: AssetImage('assets/images/bg2.jpg'), // GANTI INI
+                      image: AssetImage('assets/images/bg3.jpg'), // GANTI INI
                       fit: BoxFit.cover,
                     ),
                   ),

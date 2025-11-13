@@ -15,12 +15,11 @@ class UserModel {
   UserModel({required this.username, required this.email});
 }
 
-// --- PERUBAHAN DI SINI ---
 class Product {
   final int id;
-  final String name; // di API namanya 'title'
+  final String name; 
   final double price;
-  final String image; // Kita tetap simpan 1 gambar (gambar pertama)
+  final String image; 
   final String category;
 
   Product({
@@ -31,22 +30,18 @@ class Product {
     required this.category,
   });
 
-  // --- PERBAIKAN 4: Fungsi mapping JSON diperbarui ---
   factory Product.fromJson(Map<String, dynamic> json) {
     
-    // API baru (api.escuelajs.co) mengirim 'images' sebagai List/Array
-    // Kita ambil gambar pertama dari list itu.
+
     String imageUrl = '';
     if (json['images'] != null && 
         json['images'] is List && 
         (json['images'] as List).isNotEmpty) {
       imageUrl = (json['images'] as List)[0];
     } else if (json['image'] != null) {
-      // Fallback jika ada API lama (fakestoreapi)
       imageUrl = json['image'];
     }
 
-    // API baru juga punya 'category' di dalam objek
     String categoryName = 'Uncategorized';
     if (json['category'] != null && json['category'] is Map) {
       categoryName = json['category']['name'] ?? 'Uncategorized';
@@ -56,14 +51,13 @@ class Product {
 
     return Product(
       id: json['id'] ?? 0,
-      name: json['title'] ?? 'No Title', // API ini pakai 'title', sama seperti fakestore
+      name: json['title'] ?? 'No Title',
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
-      image: imageUrl, // Ambil gambar pertama dari list
+      image: imageUrl, 
       category: categoryName,
     );
   }
 }
-// --- BATAS PERUBAHAN ---
 
 
 class DashboardModel {

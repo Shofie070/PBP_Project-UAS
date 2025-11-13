@@ -41,11 +41,10 @@ class _ProductPageState extends State<ProductPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            // Kembali ke halaman Dashboard
+
             context.go(AppRoutes.dashboard);
           },
         ),
-        // --- BATAS PERBAIKAN ---
       ),
       body: Stack(
         children: [

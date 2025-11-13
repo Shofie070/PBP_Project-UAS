@@ -251,7 +251,7 @@ class _LoginPageState extends State<LoginPage> {
                   decoration: const BoxDecoration(
                     image: DecorationImage(
                       // --- GANTI PATH INI DENGAN GAMBAR ANDA ---
-                      image: AssetImage('assets/images/bg1.jpg'), // GANTI INI
+                      image: AssetImage('assets/images/bg3.jpg'), // GANTI INI
                       fit: BoxFit.cover, 
                     ),
                   ),

@@ -35,7 +35,6 @@ class SplashScreenState extends State<SplashScreen>
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
-    // GANTI TIMER LAMA DENGAN FUNGSI BARU UNTUK CEK LOGIN
     _checkLoginStatus();
   }
 
@@ -60,7 +59,6 @@ class SplashScreenState extends State<SplashScreen>
         );
       }
     } else if (currentEmail != null && username != null && mounted) {
-      // Backward compatible: jika pernah registrasi tapi belum set is_logged_in
       if (mounted) {
         context.go(
           AppRoutes.dashboard,
@@ -95,8 +93,8 @@ class SplashScreenState extends State<SplashScreen>
               position: _offsetAnimation,
               child: Image.asset(
                 'assets/images/splash.png',
-                width: 50.w, // Menggunakan w
-                height: 50.w, // Menggunakan w
+                width: 30.w, 
+                height: 30.w, 
               ),
             ),
             SizedBox(height: 5.h), // Menggunakan h, Dihapus const
@@ -112,15 +110,15 @@ class SplashScreenState extends State<SplashScreen>
               ),
             ),
 
-            SizedBox(height: 3.h), // Menggunakan h, Dihapus const
+            SizedBox(height: 3.h), 
 
-            // Tambahan tulisan
+            
             Text(
-              // Dihapus const
+             
               "dibuat oleh: Kelompok 1 IHIRRRRRRRRRRRR",
               style: TextStyle(
-                // Dihapus const
-                fontSize: 10.sp, // Menggunakan sp
+               
+                fontSize: 7.sp, 
                 fontWeight: FontWeight.w500,
                 color: Colors.black54,
               ),
