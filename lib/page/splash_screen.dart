@@ -15,7 +15,6 @@ class SplashScreen extends StatefulWidget {
 
 class SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-  // ... (Variabel dan Controller Animasi)
   late AnimationController _controller;
   late Animation<Offset> _offsetAnimation;
 
@@ -118,7 +117,7 @@ class SplashScreenState extends State<SplashScreen>
             // Tambahan tulisan
             Text(
               // Dihapus const
-              "dibuat oleh: Sultan Raffi Suryanegara",
+              "dibuat oleh: Kelompok 1 IHIRRRRRRRRRRRR",
               style: TextStyle(
                 // Dihapus const
                 fontSize: 10.sp, // Menggunakan sp
