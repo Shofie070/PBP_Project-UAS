@@ -7,39 +7,51 @@ class AboutCubit extends Cubit<AboutState> {
   void loadMembers() {
     final members = [
       Member(
-        name: "John Doe",
-        nim: "12345678",
-        role: "Leader",
-        github: "https://github.com/johndoe",
-        instagram: "https://instagram.com/johndoe",
-        imagePath: "assets/images/john_doe.png",
+        name: 'Shofie',
+        nim: '1234567890',
+        imagePath: 'assets/images/member1.jpg',
+        instagram: 'https://instagram.com/anggota1',
+        github: 'https://github.com/anggota1',
       ),
       Member(
-        name: "Jane Smith",
-        nim: "87654321",
-        role: "Member",
-        github: "https://github.com/janesmith",
-        instagram: "https://instagram.com/janesmith",
-        imagePath: "assets/images/jane_smith.png",
+        name: 'Putu',
+        nim: '1234567891',
+        imagePath: 'assets/images/member2.jpg',
+        instagram: 'https://instagram.com/ncvtq',
+        github: 'https://github.com/Chokycakep',
+      ),
+      Member(
+        name: 'Sultan',
+        nim: '1234567892',
+        imagePath: 'assets/images/member3.jpg',
+        instagram: 'https://instagram.com/anggota3',
+        github: 'https://github.com/anggota3',
+      ),
+      Member(
+        name: 'Nakula',
+        nim: '1234567893',
+        imagePath: 'assets/images/member4.jpg',
+        instagram: 'https://instagram.com/anggota4',
+        github: 'https://github.com/anggota4',
+      ),
+      Member(
+        name: 'Priyo',
+        nim: '1234567894',
+        imagePath: 'assets/images/member5.jpg',
+        instagram: 'https://instagram.com/anggota5',
+        github: 'https://github.com/anggota5',
+      ),
+      Member(
+        name: 'Tabligh',
+        nim: '1234567895',
+        imagePath: 'assets/images/member6.jpg',
+        instagram: 'https://instagram.com/anggota6',
+        github: 'https://github.com/anggota6',
       ),
     ];
 
     emit(AboutLoaded(members));
   }
 
-  String getAppDescription() {
-    return ' R, nous croyons que la mode est plus qu’un vêtement — c’est une expression de lumière intérieure...';
-  }
-
-  String getAppVersion() {
-    return 'Versi aplikasi 1.0.0';
-  }
-
-  String getTeamEmail() {
-    return 'kelompok1@unesa.ac.id';
-  }
-
-  String getTeamPhone() {
-    return '+62 857 8571 4197';
-  }
+  String getAppVersion() => "Version 1.0.0";
 }

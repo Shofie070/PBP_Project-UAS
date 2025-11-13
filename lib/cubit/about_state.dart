@@ -1,36 +1,25 @@
-import 'package:equatable/equatable.dart';
-
-class Member {
-  final String name;
-  final String nim;
-  final String role;
-  final String github;
-  final String instagram;
-  final String imagePath;
-
-  Member({
-    required this.name,
-    required this.nim,
-    required this.role,
-    required this.github,
-    required this.instagram,
-    required this.imagePath,
-  });
-}
-
-abstract class AboutState extends Equatable {
-  const AboutState();
-
-  @override
-  List<Object?> get props => [];
-}
+abstract class AboutState {}
 
 class AboutInitial extends AboutState {}
 
 class AboutLoaded extends AboutState {
   final List<Member> members;
-  const AboutLoaded(this.members);
 
-  @override
-  List<Object?> get props => [members];
+  AboutLoaded(this.members); // ✅ gunakan posisi langsung, bukan named argument
+}
+
+class Member {
+  final String name;
+  final String nim;
+  final String imagePath;
+  final String instagram;
+  final String github;
+
+  Member({
+    required this.name,
+    required this.nim,
+    required this.imagePath,
+    required this.instagram,
+    required this.github,
+  });
 }
