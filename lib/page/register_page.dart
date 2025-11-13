@@ -18,6 +18,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _confirmController = TextEditingController();
 
   Future<void> _register() async {
+    // ... (Logika register tidak diubah) ...
     String name = _nameController.text.trim();
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
@@ -29,33 +30,25 @@ class _RegisterPageState extends State<RegisterPage> {
       );
       return;
     }
-
     if (password != confirm) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Password tidak sama")),
       );
       return;
     }
-
-    // Simpan data ke SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_name', name);
     await prefs.setString('user_email', email);
     await prefs.setString('user_password', password);
-
-    // Simpan daftar email terdaftar (sederhana)
     final savedEmails = prefs.getStringList('registered_emails') ?? [];
     if (!savedEmails.contains(email)) {
       savedEmails.add(email);
       await prefs.setStringList('registered_emails', savedEmails);
     }
-
-    // ignore: use_build_context_synchronously
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Registrasi berhasil! Silakan login.")),
     );
-
-    // Navigasi ke halaman login setelah 1 detik
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
         context.go(AppRoutes.login);
@@ -66,122 +59,138 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        fit: StackFit.expand, // Menggunakan StackFit.expand
-        children: [
-          // Background Image
-          Image.asset(
-            "assets/images/background.png",
-            fit: BoxFit.cover,
-          ),
-          Center(
-            child: SingleChildScrollView(
-              child: Card(
-                elevation: 8,
-                margin:
-                    EdgeInsets.symmetric(horizontal: 10.w), // Unit responsif
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(5.w), // Unit responsif
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        // Dihapus const
-                        "Buat Akun Baru",
-                        style: TextStyle(
-                          // Dihapus const
-                          fontSize: 16.sp, // Unit responsif
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 3.h), // Unit responsif
-                      TextField(
-                        controller: _nameController,
-                        decoration: const InputDecoration(
-                          labelText: "Nama",
-                          prefixIcon: Icon(Icons.person),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.zero,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 2.h), // Unit responsif
-                      TextField(
-                        controller: _emailController,
-                        decoration: const InputDecoration(
-                          labelText: "Email",
-                          prefixIcon: Icon(Icons.email),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.zero,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 2.h), // Unit responsif
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: "Password",
-                          prefixIcon: Icon(Icons.lock),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.zero,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 2.h), // Unit responsif
-                      TextField(
-                        controller: _confirmController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: "Konfirmasi Password",
-                          prefixIcon: Icon(Icons.lock_outline),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.zero,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 3.h), // Unit responsif
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(255, 200, 200, 200),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 1.8.h), // Unit responsif
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(0),
-                            ),
-                          ),
-                          onPressed: _register,
-                          child: Text(
-                            // Dihapus const
-                            "Daftar",
+      backgroundColor: Colors.white,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Row(
+            children: [
+              // --- Bagian Kiri (Form Register) - 40% ---
+              Container(
+                width: constraints.maxWidth * 0.4, // Lebar 40%
+                height: constraints.maxHeight, // Tinggi penuh
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 3.w),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Logo Teks "UrbanWear"
+                          Text(
+                            "UrbanWear", 
                             style: TextStyle(
-                              // Dihapus const
-                              fontSize: 12.sp, // Unit responsif
-                              color: Colors.black,
+                              fontSize: 26.0, 
                               fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColor,
                             ),
                           ),
-                        ),
+                          SizedBox(height: 2.h),
+
+                          // Judul "Buat Akun Baru"
+                          const Text(
+                            "Buat Akun Baru",
+                            style: TextStyle(
+                              fontSize: 24.0, 
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          SizedBox(height: 3.h),
+
+                          // Input Fields
+                          TextFormField(
+                            controller: _nameController,
+                            decoration: const InputDecoration(
+                              hintText: "Nama",
+                              prefixIcon: Icon(Icons.person_outline, size: 20),
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+                          TextFormField(
+                            controller: _emailController,
+                            decoration: const InputDecoration(
+                              hintText: "Email",
+                              prefixIcon: Icon(Icons.email_outlined, size: 20),
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: true,
+                            decoration: const InputDecoration(
+                              hintText: "Password",
+                              prefixIcon: Icon(Icons.lock_outline, size: 20),
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+                          TextFormField(
+                            controller: _confirmController,
+                            obscureText: true,
+                            decoration: const InputDecoration(
+                              hintText: "Konfirmasi Password",
+                              prefixIcon: Icon(Icons.lock_outline, size: 20),
+                            ),
+                          ),
+                          SizedBox(height: 3.h),
+
+                          // Tombol Daftar
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: _register,
+                              child: const Text(
+                                "Daftar",
+                                style: TextStyle(
+                                  fontSize: 14.0, 
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+
+                          // Link Login
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text("Sudah punya akun? ",
+                                  style: TextStyle(fontSize: 13.0)), 
+                              TextButton(
+                                onPressed: () {
+                                  context.go(AppRoutes.login);
+                                },
+                                child: const Text(
+                                  "Login",
+                                  style: TextStyle(fontSize: 13.0), 
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      TextButton(
-                        onPressed: () {
-                          context.go(AppRoutes.login);
-                        },
-                        child: const Text("Sudah punya akun? Login"),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-        ],
+              
+              // --- Bagian Kanan (Dekoratif) - 60% ---
+              Expanded(
+                child: Container(
+                  height: constraints.maxHeight, // Tinggi penuh
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      // --- GANTI PATH INI DENGAN GAMBAR ANDA ---
+                      image: AssetImage('assets/images/bg2.jpg'), // GANTI INI
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

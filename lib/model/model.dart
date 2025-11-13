@@ -20,7 +20,7 @@ class Product {
   final int id;
   final String name; // di API namanya 'title'
   final double price;
-  final String image;
+  final String image; // Kita tetap simpan 1 gambar (gambar pertama)
   final String category;
 
   Product({
@@ -31,14 +31,35 @@ class Product {
     required this.category,
   });
 
-  // Fungsi untuk mapping JSON dari API ke Model Product
+  // --- PERBAIKAN 4: Fungsi mapping JSON diperbarui ---
   factory Product.fromJson(Map<String, dynamic> json) {
+    
+    // API baru (api.escuelajs.co) mengirim 'images' sebagai List/Array
+    // Kita ambil gambar pertama dari list itu.
+    String imageUrl = '';
+    if (json['images'] != null && 
+        json['images'] is List && 
+        (json['images'] as List).isNotEmpty) {
+      imageUrl = (json['images'] as List)[0];
+    } else if (json['image'] != null) {
+      // Fallback jika ada API lama (fakestoreapi)
+      imageUrl = json['image'];
+    }
+
+    // API baru juga punya 'category' di dalam objek
+    String categoryName = 'Uncategorized';
+    if (json['category'] != null && json['category'] is Map) {
+      categoryName = json['category']['name'] ?? 'Uncategorized';
+    } else if (json['category'] != null && json['category'] is String) {
+      categoryName = json['category'];
+    }
+
     return Product(
       id: json['id'] ?? 0,
-      name: json['title'] ?? 'No Title', // 'title' dari API di-map ke 'name'
-      price: (json['price'] as num?)?.toDouble() ?? 0.0, // 'price' dari API
-      image: json['image'] ?? '', // 'image' dari API
-      category: json['category'] ?? 'Uncategorized', // 'category' dari API
+      name: json['title'] ?? 'No Title', // API ini pakai 'title', sama seperti fakestore
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      image: imageUrl, // Ambil gambar pertama dari list
+      category: categoryName,
     );
   }
 }
@@ -56,7 +77,6 @@ class DashboardModel {
   List<Map<String, dynamic>> get cartModel => [];
 
   // Data statis ini sudah tidak terpakai oleh 'product.dart'
-  // tapi kita biarkan saja, mungkin dipakai di tempat lain.
   List<Product> get products => [
         Product(
             id: 1,

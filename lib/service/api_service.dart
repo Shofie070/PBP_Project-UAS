@@ -1,25 +1,24 @@
 import 'package:dio/dio.dart';
-import '../model/model.dart'; // Import model Product
+import '../model/model.dart'; // Pastikan model ini sudah diperbarui (lihat di bawah)
 
 class ApiService {
   final Dio _dio = Dio();
-  final String _baseUrl = 'https://fakestoreapi.com';
+  // --- PERBAIKAN 1: Base URL diperbaiki (tanpa /products) ---
+  final String _baseUrl = 'https://api.escuelajs.co/api/v1';
 
   Future<List<Product>> getProductsByCategory(String category) async {
-    
-    String apiCategory;
+    String apiCategoryId;
     if (category.toLowerCase() == 'kaos') {
-      apiCategory = "men's clothing"; 
+      apiCategoryId = "1"; // Kategori "Clothes"
     } else if (category.toLowerCase() == 'hoodie') {
-      apiCategory = "women's clothing"; 
+      apiCategoryId = "1"; // Kategori "Clothes"
     } else {
-      
-      apiCategory = "jewelery"; 
+      apiCategoryId = "4"; // Kategori "Shoes" (atau "5" untuk "Miscellaneous")
     }
 
     try {
-      // Panggil API pakai dio
-      String url = '$_baseUrl/products/category/$apiCategory';
+      String url = '$_baseUrl/products/?categoryId=$apiCategoryId';
+      
       Response response = await _dio.get(url);
       
       // Ubah data JSON (List) menjadi List<Product>

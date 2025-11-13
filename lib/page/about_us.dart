@@ -100,7 +100,7 @@ class AboutUs extends StatelessWidget {
                 ),
                 SizedBox(height: 1.h),
 
-                // === Data dari Cubit ===
+
                 ...state.members.map(
                   (m) => ListTile(
                     leading: CircleAvatar(
@@ -133,6 +133,5 @@ class AboutUs extends StatelessWidget {
   }
 
   void _launchUrl(BuildContext context, String url) {
-    // Tambahkan logika untuk membuka URL
   }
 }
