@@ -9,7 +9,7 @@ class DetailHoodie extends StatelessWidget {
   Widget build(BuildContext context) {
     final formatRupiah =
         NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
-        
+
     return Scaffold(
       appBar: AppBar(
         title: Text(product['name'] ?? 'Detail Hoodie'),

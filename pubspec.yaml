@@ -29,7 +29,9 @@ dependencies: # PASTIKAN SEMUA PACKAGE ADA DI SINI
   dio: ^5.9.0
 
 dev_dependencies:
-# ... (dev dependencies tetap sama)
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
 
 # Konfigurasi Aset
 flutter:

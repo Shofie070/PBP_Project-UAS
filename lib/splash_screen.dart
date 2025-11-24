@@ -117,7 +117,7 @@ class SplashScreenState extends State<SplashScreen>
 
             // Tambahan tulisan
             const Text(
-              "dibuat oleh: Sultan Raffi Suryanegara",
+              "dibuat oleh: Kelompok 1 PBP",
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
