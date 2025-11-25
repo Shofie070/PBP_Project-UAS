@@ -15,7 +15,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: const SplashScreen(),
       routes: {
-        '/checkout': (context) => const CheckoutPage(),
+        '/checkout': (context) => const CheckoutPage(
+              products: [],
+            ),
       },
     );
   }

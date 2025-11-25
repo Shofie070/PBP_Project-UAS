@@ -8,7 +8,8 @@ import 'checkout_cubit_impl.dart';
 import 'checkout_state.dart';
 
 class CheckoutPage extends StatefulWidget {
-  const CheckoutPage({super.key});
+  final List<dynamic>? products;
+  const CheckoutPage({super.key, this.products});
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
@@ -49,7 +50,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
     // di saat initState (walaupun _loadUserNameAndEmail adalah async)
     Future.microtask(() {
       final args = ModalRoute.of(context)?.settings.arguments;
-      context.read<CheckoutCubit>().loadInitialData(args);
+      // Prefer explicit constructor-provided products, otherwise fall back to route args
+      context.read<CheckoutCubit>().loadInitialData(widget.products ?? args);
     });
   }
 

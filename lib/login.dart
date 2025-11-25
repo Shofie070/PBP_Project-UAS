@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart'; // Import GetWidget
-import 'package:flutter_application_1/register_page.dart';
+import 'register_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'DashboardPage.dart'; // Pastikan path ini benar
 import 'model/model.dart'; // Pastikan path ini benar

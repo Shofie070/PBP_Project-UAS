@@ -1,15 +1,15 @@
 // File: lib/cart.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/cubic_bloc.dart';
+import 'cubic_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_application_1/cart_state.dart'; 
+import 'cart_state.dart';
 
 class CartPage extends StatelessWidget {
   // Parameter 'cart' dan 'onRemove' Dihilangkan,
   // data dan fungsi diambil dari Bloc.
 
-  const CartPage({super.key, required Null Function(dynamic index) onRemove, required List<Map<String, dynamic>> cart});
+  const CartPage({super.key, required List<Map<String, dynamic>> cart, required Null Function(dynamic index) onRemove});
 
   @override
   Widget build(BuildContext context) {

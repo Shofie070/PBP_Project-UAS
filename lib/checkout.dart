@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import 'package:urban_wear_app/model/model.dart';
 
 import 'checkout_cubit_impl.dart';
 import 'checkout_state.dart';
 
 class CheckoutPage extends StatefulWidget {
-  const CheckoutPage({super.key});
+  const CheckoutPage({super.key, required List<Product> products});
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
