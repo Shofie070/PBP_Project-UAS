@@ -1,32 +1,45 @@
+// lib/dashboard_page.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:urban_wear_app/cart_cubit.dart';
+import 'package:urban_wear_app/cart_state.dart';
+import 'package:urban_wear_app/profile.dart';
 import 'model/model.dart';
 import 'product.dart';
 import 'cart.dart';
 import 'about_us.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'login.dart'; // Make sure this is the correct file where LoginPage is defined
 import 'menu_admin.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'login.dart';
 
-class DashboardPage extends StatefulWidget {
+class DashboardPage extends StatelessWidget {
   final UserModel user;
   const DashboardPage({super.key, required this.user});
 
   @override
-  State<DashboardPage> createState() => _DashboardPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) =>
+          CartCubit(), // otomatis load dummy dari CartState.initial()
+      child: _DashboardView(user: user),
+    );
+  }
 }
 
-class _DashboardPageState extends State<DashboardPage> {
-  final List<Map<String, dynamic>> _cart = [];
+class _DashboardView extends StatelessWidget {
+  final UserModel user;
+  const _DashboardView({required this.user});
 
   Widget _buildCatalog(BuildContext context) {
     final categories = CategoryRepository.getCategories();
+
     return GridView.builder(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 0.8,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 0.78,
       ),
       itemCount: categories.length,
       itemBuilder: (context, index) {
@@ -39,33 +52,39 @@ class _DashboardPageState extends State<DashboardPage> {
                 builder: (_) => ProductPage(
                   category: category,
                   onAddToCart: (product) {
-                    setState(() {
-                      _cart.add(product);
-                    });
+                    context.read<CartCubit>().addItemToCart(product);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            "${product['name']} ditambahkan ke keranjang!"),
+                        backgroundColor: Colors.pinkAccent,
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
                   },
                 ),
               ),
             );
           },
           child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            elevation: 4,
+            elevation: 8,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CircleAvatar(
-                  radius: 40,
+                  radius: 45,
                   backgroundColor: Colors.pinkAccent.withOpacity(0.2),
                   child: const Icon(Icons.category,
-                      color: Colors.pinkAccent, size: 40),
+                      size: 44, color: Colors.pinkAccent),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 16),
                 Text(
                   category,
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),
@@ -75,163 +94,172 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  List<Widget> _drawerMenu(BuildContext context) {
-    final items = [
-      DrawerItem(
-        title: "Katalog",
-        icon: Icons.store,
-        onTap: (context) => Navigator.pop(context),
-      ),
-      DrawerItem(
-        title: "Keranjang",
-        icon: Icons.shopping_cart,
-        onTap: (context) {
-          Navigator.pop(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => CartPage(
-                cart: _cart,
-                onRemove: (index) {
-                  setState(() {
-                    _cart.removeAt(index);
-                  });
-                },
-              ),
-            ),
-          );
-        },
-      ),
-      DrawerItem(
-        title: "Tentang Kami",
-        icon: Icons.info,
-        onTap: (context) {
-          Navigator.pop(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AboutUs()),
-          );
-        },
-      ),
-    ];
-    return items
-        .map((item) => ListTile(
-              leading: Icon(item.icon),
-              title: Text(item.title),
-              onTap: () => item.onTap(context),
-            ))
-        .toList();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
+        // Background
         Image.asset(
           "assets/images/background.png",
           fit: BoxFit.cover,
           width: double.infinity,
           height: double.infinity,
         ),
+
         Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
-            title: const Text("Dashboard"),
+            title: const Text("Urban Wear",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
             backgroundColor: Colors.pinkAccent,
+            foregroundColor: Colors.white,
+            elevation: 0,
             actions: [
-              Stack(
-                alignment: Alignment.topRight,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.shopping_cart),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => CartPage(
-                            cart: _cart,
-                            onRemove: (index) {
-                              setState(() {
-                                _cart.removeAt(index);
-                              });
-                            },
+              // Badge Keranjang
+              BlocBuilder<CartCubit, CartState>(
+                builder: (context, state) {
+                  final count = state.cartItems.length;
+                  return Stack(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.shopping_cart, size: 28),
+                        onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => CartPage(
+                                      onRemove: (index) {},
+                                      cart: const [],
+                                      cartModel: null,
+                                    ))),
+                      ),
+                      if (count > 0)
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(
+                                color: Colors.red, shape: BoxShape.circle),
+                            child: Text(count.toString(),
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12)),
                           ),
                         ),
-                      );
-                    },
-                  ),
-                  if (_cart.isNotEmpty)
-                    Positioned(
-                      right: 6,
-                      top: 6,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
+                    ],
+                  );
+                },
+              ),
+
+              // Profil di AppBar (bisa diklik)
+              Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: GestureDetector(
+                  onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => ProfilePage(user: user))),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 18,
+                        backgroundColor: Colors.white,
                         child: Text(
-                          _cart.length.toString(),
+                          user.username[0].toUpperCase(),
                           style: const TextStyle(
-                              color: Colors.white, fontSize: 12),
+                              color: Colors.pinkAccent,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18),
                         ),
                       ),
-                    ),
-                ],
-              ),
-              Row(
-                children: [
-                  const CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.person, color: Colors.pinkAccent),
+                      const SizedBox(width: 8),
+                      Text(
+                        user.username,
+                        style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    widget.user.username,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                ],
+                ),
               ),
             ],
           ),
+
+          // Drawer
           drawer: Drawer(
             child: ListView(
               padding: EdgeInsets.zero,
               children: [
                 UserAccountsDrawerHeader(
                   decoration: const BoxDecoration(color: Colors.pinkAccent),
-                  accountName: Text(widget.user.username),
-                  accountEmail: Text(widget.user.email),
-                  currentAccountPicture: const CircleAvatar(
+                  accountName: Text(user.username,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  accountEmail: Text(user.email),
+                  currentAccountPicture: CircleAvatar(
                     backgroundColor: Colors.white,
-                    child: Icon(Icons.person, color: Colors.pinkAccent),
+                    child: Text(user.username[0].toUpperCase(),
+                        style: const TextStyle(
+                            fontSize: 40,
+                            color: Colors.pinkAccent,
+                            fontWeight: FontWeight.bold)),
                   ),
                 ),
-                ..._drawerMenu(context),
-                if (widget.user.email == 'admin@admin.com')
-                  ListTile(
-                    leading: const Icon(Icons.admin_panel_settings),
-                    title: const Text("Menu Admin"),
-                    onTap: () {
-                      Navigator.push(
+
+                ListTile(
+                    leading: const Icon(Icons.home),
+                    title: const Text("Beranda"),
+                    onTap: () => Navigator.pop(context)),
+                ListTile(
+                    leading: const Icon(Icons.shopping_cart),
+                    title: const Text("Keranjang"),
+                    onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const MenuAdmin(),
-                        ),
-                      );
-                    },
-                  ),
+                            builder: (_) => CartPage(
+                                  onRemove: (index) {},
+                                  cart: const [],
+                                  cartModel: null,
+                                )))),
                 ListTile(
-                  leading: const Icon(Icons.logout),
-                  title: const Text("Logout"),
+                    leading: const Icon(Icons.info),
+                    title: const Text("Tentang Kami"),
+                    onTap: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const AboutUs()))),
+
+                // PROFIL DI DRAWER
+                ListTile(
+                  leading: const Icon(Icons.person),
+                  title: const Text("Profil Saya"),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => ProfilePage(user: user)));
+                  },
+                ),
+
+                if (user.email == 'admin@admin.com')
+                  ListTile(
+                      leading: const Icon(Icons.admin_panel_settings),
+                      title: const Text("Menu Admin"),
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const MenuAdmin()))),
+
+                const Divider(),
+
+                ListTile(
+                  leading: const Icon(Icons.logout, color: Colors.red),
+                  title:
+                      const Text("Keluar", style: TextStyle(color: Colors.red)),
                   onTap: () async {
                     final prefs = await SharedPreferences.getInstance();
-                    await prefs.remove('is_logged_in');
-                    await prefs.remove('current_user_email');
+                    await prefs.clear();
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (_) => const LoginPage()),
@@ -242,10 +270,20 @@ class _DashboardPageState extends State<DashboardPage> {
               ],
             ),
           ),
+
+          // Body
           body: Column(
             children: [
+              const SizedBox(height: 10),
+              const Text(
+                "Pilih Kategori",
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
+              const SizedBox(height: 10),
               Expanded(child: _buildCatalog(context)),
-              // Removed Menu Admin button from the body
             ],
           ),
         ),

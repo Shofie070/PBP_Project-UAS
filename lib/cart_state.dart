@@ -16,8 +16,16 @@ class CartState {
 
   // State awal dengan beberapa item dummy
   factory CartState.initial() => const CartState(cartItems: [
-        {"name": "Kaos A (Dummy)", "price": 125000, "image": "assets/images/placeholder.png"},
-        {"name": "Hoodie B (Dummy)", "price": 250000, "image": "assets/images/placeholder.png"},
+        {
+          "name": "Kaos A (Dummy)",
+          "price": 125000,
+          "image": "assets/images/placeholder.png"
+        },
+        {
+          "name": "Hoodie B (Dummy)",
+          "price": 250000,
+          "image": "assets/images/placeholder.png"
+        },
       ], isLoading: false);
 
   // Helper untuk membuat salinan State baru dengan perubahan. Accepts both

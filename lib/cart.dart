@@ -9,7 +9,7 @@ class CartPage extends StatelessWidget {
   // Parameter 'cart' dan 'onRemove' Dihilangkan,
   // data dan fungsi diambil dari Bloc.
 
-  const CartPage({super.key, required List<Map<String, dynamic>> cart, required Null Function(dynamic index) onRemove});
+  const CartPage({super.key, required List<Map<String, dynamic>> cart, required Null Function(dynamic index) onRemove, required cartModel});
 
   @override
   Widget build(BuildContext context) {

@@ -52,8 +52,8 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     // Admin credentials (allowed anytime)
-    const String adminEmail = 'admin@admin.com';
-    const String adminPassword = 'admin123';
+    const String adminEmail = 'adm';
+    const String adminPassword = 'adm';
 
     if (email == adminEmail && password == adminPassword) {
       // Login as admin
