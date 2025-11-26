@@ -1,9 +1,10 @@
+import 'dart:ui'; // PENTING: Import ini untuk efek Blur (ImageFilter)
 import 'package:flutter/material.dart';
-import 'package:getwidget/getwidget.dart'; // Import GetWidget
+import 'package:getwidget/getwidget.dart';
 import 'register_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'DashboardPage.dart'; // Pastikan path ini benar
-import 'model/model.dart'; // Pastikan path ini benar
+import 'DashboardPage.dart';
+import 'model/model.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,24 +14,20 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  // Fungsi untuk mendapatkan widget tombol login dengan GFButton
+  // Tombol Login: Putih Solid agar kontras dengan kaca transparan
   Widget getLoginButton() {
     return SizedBox(
       width: double.infinity,
       child: GFButton(
-        // Menggunakan GFButton dari GetWidget
         onPressed: _login,
         text: "MASUK",
-        shape: GFButtonShape.standard, // Bentuk tombol standar
-        color: GFColors.PRIMARY, // Warna biru default GetWidget
-        size: GFSize.LARGE, // Ukuran tombol yang lebih besar
-        fullWidthButton: true, // Membuat tombol full width
-        icon: const Icon(
-          Icons.login,
-          color: Colors.white,
-        ),
+        shape: GFButtonShape.standard,
+        color: Colors.white, // Tombol Putih
+        size: GFSize.LARGE,
+        fullWidthButton: true,
+        icon: const Icon(Icons.login, color: Colors.black),
         textStyle: const TextStyle(
-            fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+            fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -51,15 +48,15 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    // Admin credentials (allowed anytime)
+    // Admin
     const String adminEmail = 'adm';
     const String adminPassword = 'adm';
 
     if (email == adminEmail && password == adminPassword) {
-      // Login as admin
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('is_logged_in', true);
       await prefs.setString('current_user_email', adminEmail);
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -71,7 +68,7 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    // Normal user: check SharedPreferences (must have registered earlier)
+    // User
     final prefs = await SharedPreferences.getInstance();
     final storedEmail = prefs.getString('user_email');
     final storedPassword = prefs.getString('user_password');
@@ -89,6 +86,7 @@ class _LoginPageState extends State<LoginPage> {
     if (email == storedEmail && password == storedPassword) {
       await prefs.setBool('is_logged_in', true);
       await prefs.setString('current_user_email', storedEmail);
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -107,97 +105,153 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Style Input Field agar cocok di atas kaca
+    InputDecoration glassInputDecoration(String label, IconData icon) {
+      return InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.white70),
+        prefixIcon: Icon(icon, color: Colors.white),
+        filled: true,
+        // Background input lebih gelap sedikit agar teks terbaca jelas
+        fillColor: Colors.black.withOpacity(0.2),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.white),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      );
+    }
+
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Background Image
+          // 1. Background Image
           Image.asset(
             "assets/images/background.png",
             fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Container(color: Colors.black),
           ),
+
+          // 2. Overlay Gelap (Sedikit lebih terang agar efek kaca terlihat)
+          Container(color: Colors.black.withOpacity(0.5)),
+
+          // 3. Konten Login (Glassmorphism)
           Center(
             child: SingleChildScrollView(
-              child: Card(
-                color: const Color(0xFFF8BBD0), // Pink pastel
-                elevation: 8,
-                margin: const EdgeInsets.symmetric(horizontal: 24),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text(
-                        "Selamat Datang!",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFE573B4), // Pink lucu
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        "Silakan masuk untuk melanjutkan",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 40),
-                      TextField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: BackdropFilter(
+                  // EFEK BLUR (KACA)
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    padding: const EdgeInsets.all(30),
+                    decoration: BoxDecoration(
+                        // WARNA SEMI PUTIH TRANSPARAN
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                            color: Colors.white
+                                .withOpacity(0.2), // Border putih tipis
+                            width: 1.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 20,
+                            spreadRadius: 5,
+                          )
+                        ]),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Judul
+                        const Text(
+                          "Selamat Datang!",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 1.5,
                           ),
-                          prefixIcon: const Icon(Icons.email),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: _obscureText,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                        const SizedBox(height: 10),
+                        const Text(
+                          "Silakan masuk untuk melanjutkan",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white70,
                           ),
-                          prefixIcon: const Icon(Icons.lock),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscureText
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
+                        ),
+                        const SizedBox(height: 40),
+
+                        // Input Email
+                        TextField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          style: const TextStyle(color: Colors.white),
+                          decoration:
+                              glassInputDecoration('Email', Icons.email),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Input Password
+                        TextField(
+                          controller: _passwordController,
+                          obscureText: _obscureText,
+                          style: const TextStyle(color: Colors.white),
+                          decoration:
+                              glassInputDecoration('Password', Icons.lock)
+                                  .copyWith(
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscureText
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                                color: Colors.white70,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscureText = !_obscureText;
+                                });
+                              },
                             ),
-                            onPressed: () {
-                              setState(() {
-                                _obscureText = !_obscureText;
-                              });
-                            },
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      getLoginButton(),
-                      const SizedBox(height: 16),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const RegisterPage()),
-                          );
-                        },
-                        child: const Text("Belum punya akun? Daftar"),
-                      ),
-                    ],
+
+                        const SizedBox(height: 30),
+
+                        // Tombol Login
+                        getLoginButton(),
+
+                        const SizedBox(height: 20),
+
+                        // Link Daftar
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const RegisterPage()),
+                            );
+                          },
+                          child: const Text(
+                            "Belum punya akun? Daftar",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
