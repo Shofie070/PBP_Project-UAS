@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Import intl
 
-class DetailKaos extends StatelessWidget {
+class DetailHoodie extends StatelessWidget {
   final Map<String, dynamic> product;
-  const DetailKaos({super.key, required this.product});
+  const DetailHoodie({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
     final formatRupiah =
         NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
-
+        
     return Scaffold(
       appBar: AppBar(
-        title: Text(product['name'] ?? 'Detail Kaos'),
+        title: Text(product['name'] ?? 'Detail Hoodie'),
         backgroundColor: Colors.pinkAccent,
       ),
       body: Stack(
@@ -60,7 +60,7 @@ class DetailKaos extends StatelessWidget {
                         style: const TextStyle(fontSize: 20),
                       ),
                       const SizedBox(height: 16),
-                      const Text('Detail produk kaos dari API.'),
+                      const Text('Detail khusus produk Hoodie dari API.'),
                       const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,

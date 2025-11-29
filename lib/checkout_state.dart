@@ -1,3 +1,4 @@
+
 class CheckoutState {
   final String paymentMethod;
   final List<Map<String, dynamic>> items;

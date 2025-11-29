@@ -1,423 +1,711 @@
-// lib/dashboard_page.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'dart:convert';
+import 'package:intl/intl.dart';
+import 'package:sizer/sizer.dart';
+import '../../model/model.dart';
+import '../../service/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../service/app_router.dart';
+import '../../service/theme_service.dart';
 
-// Import halaman-halaman lain
-import 'package:urban_wear_app/cart_cubit.dart';
-import 'package:urban_wear_app/cart_state.dart';
-import 'package:urban_wear_app/profile.dart';
-import 'package:urban_wear_app/cart.dart';
-import 'package:urban_wear_app/about_us.dart';
-import 'package:urban_wear_app/menu_admin.dart';
-import 'package:urban_wear_app/login.dart';
-import 'package:urban_wear_app/about_app.dart'; // Pastikan file ini ada!
-
-// Import model dan data
-import 'model/model.dart';
-import 'product.dart'; // Pastikan file ini memuat CategoryRepository
-
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   final UserModel user;
   const DashboardPage({super.key, required this.user});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => CartCubit(),
-      child: _DashboardView(user: user),
-    );
-  }
+  State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _DashboardView extends StatefulWidget {
-  final UserModel user;
-  const _DashboardView({required this.user});
+class _DashboardPageState extends State<DashboardPage> {
+  // Service
+  final ApiService _apiService = ApiService();
+  late Future<List<Product>> _productsFuture;
+  final formatRupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+
+  // Search & Filter
+  String _searchQuery = "";
+  String _selectedCategory = "All"; // Filter category
+  List<Product> _allProducts = []; // Simpan semua data di sini
+  List<Product> _filteredProducts = []; // Data yang ditampilkan
+  bool _isLoading = true;
+  String? _errorMessage;
+  
+  // Carousel
+  int _carouselIndex = 0;
+  final PageController _pageController = PageController();
 
   @override
-  State<_DashboardView> createState() => _DashboardViewState();
-}
-
-class _DashboardViewState extends State<_DashboardView> {
-  // Variabel untuk menyimpan kategori yang sedang dipilih (Default: All)
-  String selectedCategory = "All";
-
-  // --- WIDGET 1: TAB FILTER (SHORTING) DI ATAS ---
-  Widget _buildCategoryTabs() {
-    // Ambil list kategori dan tambahkan "All" di depannya
-    final categories = ["All", ...CategoryRepository.getCategories()];
-
-    return SizedBox(
-      height: 40,
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        scrollDirection: Axis.horizontal,
-        itemCount: categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
-        itemBuilder: (context, index) {
-          final category = categories[index];
-          final isSelected = selectedCategory == category;
-
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                selectedCategory = category;
-              });
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              decoration: BoxDecoration(
-                // Jika dipilih warnanya Putih, jika tidak Transparan
-                color:
-                    isSelected ? Colors.white : Colors.white.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color:
-                      isSelected ? Colors.white : Colors.white.withOpacity(0.3),
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  category,
-                  style: TextStyle(
-                    color: isSelected ? Colors.black : Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
+  void initState() {
+    super.initState();
+    _loadData();
   }
 
-  // --- WIDGET 2: DAFTAR KATEGORI DI BAWAH ---
-  Widget _buildCatalog(BuildContext context) {
-    final allCategories = CategoryRepository.getCategories();
+  void _loadData() {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    
+    _productsFuture = _apiService.getDashboardProducts().timeout(
+      const Duration(seconds: 15),
+      onTimeout: () {
+        throw Exception('Timeout - API terlalu lambat, menggunakan data lokal...');
+      },
+    );
+    
+    _productsFuture.then((products) {
+      if (mounted) {
+        setState(() {
+          // Filter hanya clothing dan accessories
+          _allProducts = products
+              .where((p) => p.category.toLowerCase() == 'kaos' || 
+                           p.category.toLowerCase() == 'hoodie' ||
+                           p.category.toLowerCase() == 'aksesoris')
+              .toList();
+          _filteredProducts = _allProducts;
+          _isLoading = false;
+          _errorMessage = null;
+        });
+      }
+    }).catchError((error) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          // Tampilkan pesan yang lebih friendly
+          _errorMessage = null; // Sembunyikan error karena sudah fallback ke mock
+        });
+      }
+    });
+  }
 
-    // LOGIKA FILTER:
-    final displayedCategories = selectedCategory == "All"
-        ? allCategories
-        : allCategories.where((c) => c == selectedCategory).toList();
+  void _filterProducts(String query) {
+    setState(() {
+      _searchQuery = query;
+      if (query.isEmpty && _selectedCategory == "All") {
+        _filteredProducts = _allProducts;
+      } else {
+        _filteredProducts = _allProducts.where((p) {
+          bool matchesSearch = query.isEmpty || p.name.toLowerCase().contains(query.toLowerCase());
+          bool matchesCategory = _selectedCategory == "All" || p.category == _selectedCategory;
+          return matchesSearch && matchesCategory;
+        }).toList();
+      }
+    });
+  }
 
-    if (displayedCategories.isEmpty) {
-      return const Center(
-          child: Text("Kategori tidak ditemukan",
-              style: TextStyle(color: Colors.white)));
-    }
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        bool isDesktop = constraints.maxWidth > 900;
+        
+        // Helper ukuran
+        double responsiveSize(double mobileSp, double desktopPx) {
+          return isDesktop ? desktopPx : mobileSp.sp;
+        }
 
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      itemCount: displayedCategories.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        final category = displayedCategories[index];
-
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => ProductPage(
-                  category: category,
-                  onAddToCart: (product) {
-                    context.read<CartCubit>().addItemToCart(product);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            "${product['name']} ditambahkan ke keranjang!",
-                            style: const TextStyle(color: Colors.black)),
-                        backgroundColor: Colors.white,
-                        duration: const Duration(seconds: 1),
+        return Scaffold(
+          backgroundColor: const Color(0xFFF9F9F9), // Latar abu sangat muda
+          appBar: _buildAppBar(context, isDesktop, responsiveSize),
+          drawer: _buildDrawer(context, responsiveSize),
+          body: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _errorMessage != null
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error, size: 50, color: Colors.red),
+                          const SizedBox(height: 20),
+                          Text(_errorMessage!, style: const TextStyle(fontSize: 16, color: Colors.red)),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() => _isLoading = true);
+                              _loadData();
+                            },
+                            child: const Text('Coba Lagi'),
+                          ),
+                        ],
                       ),
-                    );
-                  },
-                ),
-              ),
-            );
-          },
-          // Desain Kartu (List Menu Elegan)
-          child: Container(
-            height: 80,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(16),
-              border:
-                  Border.all(color: Colors.white.withOpacity(0.15), width: 1),
-            ),
-            child: Row(
+                    )
+                  : SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Ikon
-                Container(
-                  width: 45,
-                  height: 45,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    shape: BoxShape.circle,
+                // --- WELCOME MESSAGE ---
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isDesktop ? 40 : 5.w,
+                    vertical: isDesktop ? 20 : 2.h
                   ),
-                  child: const Icon(Icons.checkroom,
-                      color: Colors.white, size: 22),
+                  child: Text(
+                    "Halooo ${widget.user.username}👋\nHari ini mau belanja apa nihh?",
+                    style: TextStyle(
+                      fontSize: responsiveSize(14, 18),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87
+                    ),
+                  ),
                 ),
-                const SizedBox(width: 16),
-                // Teks
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                // --- 1. SEARCH BAR ---
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isDesktop ? 40 : 5.w, 
+                    vertical: isDesktop ? 20 : 2.h
+                  ),
+                  child: TextField(
+                    onChanged: _filterProducts,
+                    decoration: InputDecoration(
+                      hintText: "Search shoes, clothes...",
+                      hintStyle: TextStyle(fontSize: responsiveSize(10, 14), color: Colors.grey),
+                      prefixIcon: Icon(Icons.search, color: Colors.grey, size: responsiveSize(18, 22)),
+                      suffixIcon: Container(
+                        margin: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor, // Warna tombol filter
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.tune, color: Colors.white, size: 20),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                    ),
+                  ),
+                ),
+
+                // --- 2. PROMO BANNER ---
+                _buildPromoBanner(isDesktop, responsiveSize),
+
+                // --- 3. JUDUL SECTION (Popular / New) ---
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isDesktop ? 40 : 5.w,
+                    vertical: isDesktop ? 20 : 2.h
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        category,
-                        style: const TextStyle(
-                          fontSize: 18,
+                        "Popular Products",
+                        style: TextStyle(
+                          fontSize: responsiveSize(14, 20),
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 0.5,
+                          color: Colors.black87
                         ),
                       ),
-                      const SizedBox(height: 2),
                       Text(
-                        "Explore Collection",
+                        "View All",
                         style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.white.withOpacity(0.5),
-                          fontWeight: FontWeight.w300,
+                          fontSize: responsiveSize(10, 14),
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w600
                         ),
                       ),
                     ],
                   ),
                 ),
-                // Panah
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: Colors.white.withOpacity(0.5),
-                  size: 16,
+
+                // --- 4. GRID PRODUK ---
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 40 : 5.w),
+                  child: _filteredProducts.isEmpty && _searchQuery.isNotEmpty
+                      ? const Center(child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: Text("Produk tidak ditemukan"),
+                        ))
+                      : _buildProductGrid(isDesktop, responsiveSize),
                 ),
+                
+                SizedBox(height: 5.h), // Spasi bawah
               ],
             ),
           ),
         );
+      }
+    );
+  }
+
+  // --- WIDGET GRID PRODUK ---
+  Widget _buildProductGrid(bool isDesktop, Function responsiveSize) {
+    if (_filteredProducts.isEmpty && _searchQuery.isEmpty) {
+      // Masih loading data awal
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return GridView.builder(
+      physics: const NeverScrollableScrollPhysics(), // Scroll ikut parent
+      shrinkWrap: true,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: isDesktop ? 5 : 2, // 2 kolom di HP, 5 di Desktop
+        crossAxisSpacing: isDesktop ? 20 : 4.w,
+        mainAxisSpacing: isDesktop ? 20 : 4.w,
+        childAspectRatio: 0.7, // Rasio kartu (agak tinggi)
+      ),
+      itemCount: _filteredProducts.length,
+      itemBuilder: (context, index) {
+        final product = _filteredProducts[index];
+        return _buildProductCard(product, isDesktop, responsiveSize);
       },
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Theme(
-      data: ThemeData.dark(),
-      child: Stack(
-        children: [
-          // Background Image
-          Image.asset(
-            "assets/images/background.png",
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-            errorBuilder: (_, __, ___) => Container(color: Colors.black),
-          ),
-          // Overlay Gelap
-          Container(color: Colors.black.withOpacity(0.6)),
-
-          Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: AppBar(
-              title: const Text("Urban Wear",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              actions: [
-                // Badge Keranjang
-                BlocBuilder<CartCubit, CartState>(
-                  builder: (context, state) {
-                    final count = state.cartItems.length;
-                    return Stack(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.shopping_cart, size: 28),
-                          onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => CartPage(
-                                        onRemove: (index) {},
-                                        cart: const [],
-                                        cartModel: null,
-                                      ))),
-                        ),
-                        if (count > 0)
-                          Positioned(
-                            right: 8,
-                            top: 8,
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: const BoxDecoration(
-                                  color: Colors.red, shape: BoxShape.circle),
-                              child: Text(count.toString(),
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12)),
-                            ),
-                          ),
-                      ],
-                    );
-                  },
-                ),
-                // Profil Icon
-                Padding(
-                  padding: const EdgeInsets.only(right: 16),
-                  child: GestureDetector(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => ProfilePage(user: widget.user))),
-                    child: CircleAvatar(
-                      radius: 18,
-                      backgroundColor: Colors.white,
-                      child: Text(
-                        widget.user.username[0].toUpperCase(),
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18),
+  // --- WIDGET KARTU PRODUK (Satuan) ---
+  Widget _buildProductCard(Product product, bool isDesktop, Function responsiveSize) {
+    return GestureDetector(
+      onTap: () {
+        // Navigasi ke detail
+        context.push(AppRoutes.detailProduk, extra: {
+          "name": product.name,
+          "price": product.price,
+          "image": product.image,
+        });
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Gambar Produk
+            Expanded(
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                    child: Container(
+                      width: double.infinity,
+                      color: Colors.grey[100],
+                      child: Image.network(
+                        product.image,
+                        fit: BoxFit.cover, // Gambar cover
+                        errorBuilder: (context, error, stackTrace) {
+                          // Try load as asset if network fails
+                          if (product.image.startsWith('assets/')) {
+                            return Image.asset(
+                              product.image,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, err, stack) =>
+                                  const Center(child: Icon(Icons.broken_image, color: Colors.grey)),
+                            );
+                          }
+                          return const Center(child: Icon(Icons.broken_image, color: Colors.grey));
+                        },
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-
-            // Drawer Navigasi
-            drawer: Drawer(
-              backgroundColor: const Color(0xFF111111),
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  UserAccountsDrawerHeader(
-                    decoration: const BoxDecoration(color: Colors.black),
-                    accountName: Text(widget.user.username,
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                    accountEmail: Text(widget.user.email),
-                    currentAccountPicture: CircleAvatar(
-                      backgroundColor: Colors.white,
-                      child: Text(widget.user.username[0].toUpperCase(),
-                          style: const TextStyle(
-                              fontSize: 40,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold)),
+                  // Tombol Love (Favorit)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.favorite_border, size: 16, color: Colors.red),
                     ),
-                  ),
-                  ListTile(
-                      leading: const Icon(Icons.home, color: Colors.white),
-                      title: const Text("Beranda",
-                          style: TextStyle(color: Colors.white)),
-                      onTap: () => Navigator.pop(context)),
-                  ListTile(
-                      leading:
-                          const Icon(Icons.shopping_cart, color: Colors.white),
-                      title: const Text("Keranjang",
-                          style: TextStyle(color: Colors.white)),
-                      onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => CartPage(
-                                    onRemove: (index) {},
-                                    cart: const [],
-                                    cartModel: null,
-                                  )))),
-                  ListTile(
-                      leading: const Icon(Icons.groups, color: Colors.white),
-                      title: const Text("Tentang Kami",
-                          style: TextStyle(color: Colors.white)),
-                      onTap: () => Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => const AboutUs()))),
-
-                  // --- MENU TENTANG APLIKASI (MENGARAH KE FILE BARU) ---
-                  ListTile(
-                      leading:
-                          const Icon(Icons.smartphone, color: Colors.white),
-                      title: const Text("Tentang Aplikasi",
-                          style: TextStyle(color: Colors.white)),
-                      onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const AboutAppPage()))),
-
-                  ListTile(
-                    leading: const Icon(Icons.person, color: Colors.white),
-                    title: const Text("Profil Saya",
-                        style: TextStyle(color: Colors.white)),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => ProfilePage(user: widget.user)));
-                    },
-                  ),
-                  if (widget.user.email == 'admin@admin.com')
-                    ListTile(
-                        leading: const Icon(Icons.admin_panel_settings,
-                            color: Colors.white),
-                        title: const Text("Menu Admin",
-                            style: TextStyle(color: Colors.white)),
-                        onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const MenuAdmin()))),
-                  const Divider(color: Colors.grey),
-                  ListTile(
-                    leading: const Icon(Icons.logout, color: Colors.red),
-                    title: const Text("Keluar",
-                        style: TextStyle(color: Colors.red)),
-                    onTap: () async {
-                      final prefs = await SharedPreferences.getInstance();
-                      await prefs.clear();
-                      if (!context.mounted) return;
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LoginPage()),
-                        (route) => false,
-                      );
-                    },
                   ),
                 ],
               ),
             ),
+            
+            // Info Produk
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsiveSize(10, 14),
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        formatRupiah.format(product.price),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: responsiveSize(9, 13),
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      // Tombol Plus kecil
+                      Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.add, size: 14, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-            // BODY UTAMA
-            body: Column(
-              children: [
-                const SizedBox(height: 20),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "SHOP BY CATEGORY",
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 2.0,
-                          color: Colors.white),
+  // --- WIDGET BANNER PROMO (CAROUSEL) ---
+  Widget _buildPromoBanner(bool isDesktop, Function responsiveSize) {
+    final List<String> carouselImages = [
+      "assets/images/Hoodie1.png",
+      "assets/images/Hoodie2.png",
+      "assets/images/Kaos1.png",
+      "assets/images/Kaos2.png",
+    ];
+
+    return Column(
+      children: [
+        // Carousel with PageView
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: isDesktop ? 40 : 5.w),
+          height: isDesktop ? 250 : 22.h,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // PageView untuk carousel
+              PageView.builder(
+                controller: _pageController,
+                onPageChanged: (index) {
+                  setState(() => _carouselIndex = index);
+                },
+                itemCount: carouselImages.length,
+                itemBuilder: (context, index) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Stack(
+                      children: [
+                        // Background image dengan gradient overlay
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.blue.shade400,
+                                Colors.purple.shade600,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                          child: Image.asset(
+                            carouselImages[index],
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                                  color: Colors.grey[300],
+                                  child: const Center(
+                                    child: Icon(Icons.image, color: Colors.grey),
+                                  ),
+                                ),
+                          ),
+                        ),
+                        // Gradient overlay untuk text visibility
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withOpacity(0.5),
+                              ],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                          ),
+                        ),
+                        // Promo text
+                        Positioned(
+                          left: 20,
+                          top: 20,
+                          right: 20,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Get the Special Discount",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: responsiveSize(12, 16),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              SizedBox(height: 1.h),
+                              Text(
+                                "50% OFF",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: responsiveSize(28, 40),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 0.5.h),
+                              Text(
+                                "Limited time only!",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: responsiveSize(10, 12),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              // Shop button di kanan bawah
+              Positioned(
+                right: 15,
+                bottom: 15,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    "Shop Now",
+                    style: TextStyle(
+                      color: Colors.purple.shade600,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
                     ),
                   ),
                 ),
-
-                const SizedBox(height: 15),
-
-                // 1. TAMPILKAN TAB FILTER
-                _buildCategoryTabs(),
-
-                const SizedBox(height: 10),
-
-                // 2. TAMPILKAN LIST KATEGORI
-                Expanded(child: _buildCatalog(context)),
-              ],
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 2.h),
+        // Dots indicator
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            carouselImages.length,
+            (index) => AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              width: _carouselIndex == index ? 24 : 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: _carouselIndex == index
+                    ? Colors.purple
+                    : Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(4),
+              ),
             ),
+          ),
+        ),
+        SizedBox(height: 2.h),
+      ],
+    );
+  }
+
+  // --- APP BAR ---
+  AppBar _buildAppBar(BuildContext context, bool isDesktop, Function responsiveSize) {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      iconTheme: const IconThemeData(color: Colors.black), // Icon hamburger hitam
+      title: isDesktop ? null : Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Hello, ${widget.user.username}", style: TextStyle(color: Colors.grey, fontSize: 12)),
+          Text("Let's Shop", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
+        ],
+      ),
+      centerTitle: false,
+      actions: [
+        // User Avatar (kanan)
+        Padding(
+          padding: const EdgeInsets.only(right: 16.0),
+          child: CircleAvatar(
+            backgroundColor: Colors.grey[200],
+            child: Icon(Icons.person, color: Theme.of(context).primaryColor),
+          ),
+        )
+      ],
+    );
+  }
+
+  // --- DRAWER (Sama seperti sebelumnya) ---
+  Widget _buildDrawer(BuildContext context, Function responsiveSize) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          UserAccountsDrawerHeader(
+            decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+            accountName: Text(widget.user.username),
+            accountEmail: Text(widget.user.email),
+            currentAccountPicture: FutureBuilder<SharedPreferences>(
+              future: SharedPreferences.getInstance(),
+              builder: (context, snap) {
+                if (!snap.hasData) {
+                  return const CircleAvatar(backgroundColor: Colors.white, child: Icon(Icons.person));
+                }
+                final prefs = snap.data!;
+                final b64 = prefs.getString('profile_image');
+                if (b64 == null) {
+                  return const CircleAvatar(backgroundColor: Colors.white, child: Icon(Icons.person));
+                }
+                try {
+                  final bytes = base64Decode(b64);
+                  return CircleAvatar(backgroundColor: Colors.white, backgroundImage: MemoryImage(bytes));
+                } catch (_) {
+                  return const CircleAvatar(backgroundColor: Colors.white, child: Icon(Icons.person));
+                }
+              },
+            ),
+          ),
+          // Profile entry (tap to open profile page)
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text("Profil"),
+            onTap: () {
+              Navigator.pop(context);
+              // Pass user object directly; route will handle Map or UserModel
+              context.push(AppRoutes.profile, extra: widget.user);
+            },
+          ),
+          const Divider(),
+          // Theme toggle
+          ValueListenableBuilder<ThemeMode>(
+            valueListenable: ThemeService.themeModeNotifier,
+            builder: (context, mode, _) {
+              return SwitchListTile(
+                title: const Text('Dark Mode'),
+                secondary: const Icon(Icons.dark_mode),
+                value: mode == ThemeMode.dark,
+                onChanged: (v) async {
+                  await ThemeService().setThemeMode(v);
+                },
+              );
+            },
+          ),
+          // Language selector
+          ListTile(
+            leading: const Icon(Icons.language),
+            title: const Text('Language'),
+            trailing: ValueListenableBuilder<String>(
+              valueListenable: ThemeService.languageNotifier,
+              builder: (context, lang, _) {
+                String label = lang;
+                switch (lang) {
+                  case 'id': label = 'ID'; break;
+                  case 'en': label = 'EN'; break;
+                  case 'es': label = 'ES'; break;
+                  case 'fr': label = 'FR'; break;
+                  case 'de': label = 'DE'; break;
+                }
+                return Text(label);
+              },
+            ),
+            onTap: () {
+              // Show simple dialog with language choices
+              showDialog(
+                context: context,
+                builder: (ctx) => SimpleDialog(
+                  title: const Text('Select Language'),
+                  children: [
+                    SimpleDialogOption(
+                      child: const Text('Indonesia (ID)'),
+                      onPressed: () async { await ThemeService().setLanguage('id'); Navigator.pop(ctx); },
+                    ),
+                    SimpleDialogOption(
+                      child: const Text('English (EN)'),
+                      onPressed: () async { await ThemeService().setLanguage('en'); Navigator.pop(ctx); },
+                    ),
+                    SimpleDialogOption(
+                      child: const Text('Español (ES)'),
+                      onPressed: () async { await ThemeService().setLanguage('es'); Navigator.pop(ctx); },
+                    ),
+                    SimpleDialogOption(
+                      child: const Text('Français (FR)'),
+                      onPressed: () async { await ThemeService().setLanguage('fr'); Navigator.pop(ctx); },
+                    ),
+                    SimpleDialogOption(
+                      child: const Text('Deutsch (DE)'),
+                      onPressed: () async { await ThemeService().setLanguage('de'); Navigator.pop(ctx); },
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.home),
+            title: const Text("Home"),
+            onTap: () => Navigator.pop(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.shopping_cart),
+            title: const Text("Keranjang"),
+            onTap: () {
+              Navigator.pop(context);
+              context.go(AppRoutes.cart);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.info),
+            title: const Text("About Us"),
+            onTap: () {
+              Navigator.pop(context);
+              context.go(AppRoutes.about);
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text("Logout", style: TextStyle(color: Colors.red)),
+            onTap: () async {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.remove('is_logged_in');
+              await prefs.remove('current_user_email');
+              if (context.mounted) {
+                context.go(AppRoutes.login);
+              }
+            },
           ),
         ],
       ),

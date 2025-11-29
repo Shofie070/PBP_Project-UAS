@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // <--- TAMBAHKAN INI
-import 'login.dart';
-import 'DashboardPage.dart'; // <--- Pastikan Anda punya file DashboardPage.dart
-import 'model/model.dart'; // <--- Untuk menggunakan UserModel
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sizer/sizer.dart';
+import 'package:go_router/go_router.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -48,32 +47,20 @@ class SplashScreenState extends State<SplashScreen>
     final String? currentEmail = prefs.getString('current_user_email');
     final String? username = prefs.getString('user_name');
 
-    // Tunda selama 4 detik (agar Splash Screen tetap tampil)
-    await Future.delayed(const Duration(seconds: 4));
+    // Tunda selama 3 detik (agar Splash Screen tetap tampil)
+    await Future.delayed(const Duration(seconds: 3));
 
-    if (isLoggedIn && currentEmail != null && mounted) {
+    if (!mounted) return;
+
+    if (isLoggedIn && currentEmail != null) {
       // Jika user persistent login, masuk ke dashboard
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => DashboardPage(
-            user: UserModel(username: username ?? 'User', email: currentEmail),
-          ),
-        ),
-      );
-    } else if (currentEmail != null && username != null && mounted) {
+      context.go('/dashboard');
+    } else if (currentEmail != null && username != null) {
       // Backward compatible: jika pernah registrasi tapi belum set is_logged_in
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => DashboardPage(
-            user: UserModel(username: username, email: currentEmail),
-          ),
-        ),
-      );
-    } else if (mounted) {
+      context.go('/dashboard');
+    } else {
       // Jika data tidak ada (belum login), arahkan ke LoginPage
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-      );
+      context.go('/login');
     }
   }
 
@@ -97,29 +84,32 @@ class SplashScreenState extends State<SplashScreen>
               position: _offsetAnimation,
               child: Image.asset(
                 'assets/images/splash.png',
-                width: 200,
-                height: 200,
+                width: 50.w, // Menggunakan w
+                height: 50.w, // Menggunakan w
               ),
             ),
-            const SizedBox(height: 40),
+            SizedBox(height: 5.h), // Menggunakan h, Dihapus const
 
             // Loading bar horizontal
-            const SizedBox(
-              width: 200,
-              child: LinearProgressIndicator(
+            SizedBox(
+              // Dihapus const
+              width: 50.w, // Menggunakan w
+              child: const LinearProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
                 backgroundColor: Colors.black12,
                 minHeight: 6,
               ),
             ),
 
-            const SizedBox(height: 20),
+            SizedBox(height: 3.h), // Menggunakan h, Dihapus const
 
             // Tambahan tulisan
-            const Text(
-              "dibuat oleh: Kelompok 1 PBP",
+            Text(
+              // Dihapus const
+              "dibuat oleh: Sultan Raffi Suryanegara",
               style: TextStyle(
-                fontSize: 14,
+                // Dihapus const
+                fontSize: 10.sp, // Menggunakan sp
                 fontWeight: FontWeight.w500,
                 color: Colors.black54,
               ),
