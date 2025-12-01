@@ -109,7 +109,7 @@ class Product extends BaseProduct {
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       id: json['id'] ?? 0,
-      name: json['title'] ?? 'No Title',
+      name: json['title'] ?? json['name'] ?? 'No Title',
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
       image: json['image'] ?? '',
       category: json['category'] ?? 'Uncategorized',
@@ -271,5 +271,95 @@ class DashboardModel {
 class CategoryRepository {
   static List<String> getCategories() {
     return ["Kaos", "Hoodie", "Aksesoris"];
+  }
+}
+
+// ============ CHAT MODELS ============
+
+class ChatMessage {
+  final String id;
+  final String senderId;
+  final String senderName;
+  final String message;
+  final DateTime timestamp;
+  final bool isFromAdmin;
+
+  ChatMessage({
+    required this.id,
+    required this.senderId,
+    required this.senderName,
+    required this.message,
+    required this.timestamp,
+    required this.isFromAdmin,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'senderId': senderId,
+    'senderName': senderName,
+    'message': message,
+    'timestamp': timestamp.toIso8601String(),
+    'isFromAdmin': isFromAdmin,
+  };
+
+  factory ChatMessage.fromJson(Map<String, dynamic> json) {
+    return ChatMessage(
+      id: json['id'] ?? '',
+      senderId: json['senderId'] ?? '',
+      senderName: json['senderName'] ?? '',
+      message: json['message'] ?? '',
+      timestamp: DateTime.parse(json['timestamp'] ?? DateTime.now().toIso8601String()),
+      isFromAdmin: json['isFromAdmin'] ?? false,
+    );
+  }
+}
+
+class ChatRoom {
+  final String id;
+  final String userId;
+  final String userName;
+  final String userEmail;
+  final List<ChatMessage> messages;
+  final DateTime createdAt;
+  final DateTime lastMessageAt;
+  final bool isActive;
+
+  ChatRoom({
+    required this.id,
+    required this.userId,
+    required this.userName,
+    required this.userEmail,
+    required this.messages,
+    required this.createdAt,
+    required this.lastMessageAt,
+    this.isActive = true,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'userId': userId,
+    'userName': userName,
+    'userEmail': userEmail,
+    'messages': messages.map((m) => m.toJson()).toList(),
+    'createdAt': createdAt.toIso8601String(),
+    'lastMessageAt': lastMessageAt.toIso8601String(),
+    'isActive': isActive,
+  };
+
+  factory ChatRoom.fromJson(Map<String, dynamic> json) {
+    final messagesList = (json['messages'] as List<dynamic>?)
+        ?.map((m) => ChatMessage.fromJson(m as Map<String, dynamic>))
+        .toList() ?? [];
+    
+    return ChatRoom(
+      id: json['id'] ?? '',
+      userId: json['userId'] ?? '',
+      userName: json['userName'] ?? '',
+      userEmail: json['userEmail'] ?? '',
+      messages: messagesList,
+      createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
+      lastMessageAt: DateTime.parse(json['lastMessageAt'] ?? DateTime.now().toIso8601String()),
+      isActive: json['isActive'] ?? true,
+    );
   }
 }

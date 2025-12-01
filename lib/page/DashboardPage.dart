@@ -81,25 +81,60 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
 
   Future<void> _loadPrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    final favs = prefs.getStringList('favorites') ?? [];
+    final favs = prefs.getStringList('favorites_list') ?? [];
     setState(() {
       _favoriteIds.clear();
-      _favoriteIds.addAll(favs.map((s) => int.tryParse(s)).whereType<int>());
+      for (final jsonStr in favs) {
+        try {
+          final jsonMap = jsonDecode(jsonStr) as Map<String, dynamic>;
+          final product = Product.fromJson(jsonMap);
+          _favoriteIds.add(product.id);
+        } catch (e) {
+          // Skip malformed JSON
+        }
+      }
     });
-  }
-
-  Future<void> _saveFavorites() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('favorites', _favoriteIds.map((i) => i.toString()).toList());
   }
 
   void _toggleFavorite(Product p) async {
-    setState(() {
-      if (_favoriteIds.contains(p.id)) _favoriteIds.remove(p.id);
-      else _favoriteIds.add(p.id);
-    });
-    await _saveFavorites();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_favoriteIds.contains(p.id) ? 'Ditambahkan ke favorit' : 'Dihapus dari favorit')));
+    final prefs = await SharedPreferences.getInstance();
+    final favsList = prefs.getStringList('favorites_list') ?? [];
+    
+    // Check if product is already favorited by ID
+    bool isFavorited = false;
+    int favoriteIndex = -1;
+    for (int i = 0; i < favsList.length; i++) {
+      try {
+        final jsonMap = jsonDecode(favsList[i]) as Map<String, dynamic>;
+        final product = Product.fromJson(jsonMap);
+        if (product.id == p.id) {
+          isFavorited = true;
+          favoriteIndex = i;
+          break;
+        }
+      } catch (e) {
+        // Skip malformed JSON
+      }
+    }
+    
+    // Toggle: remove if favorited, add if not
+    if (isFavorited && favoriteIndex >= 0) {
+      favsList.removeAt(favoriteIndex);
+      setState(() {
+        _favoriteIds.remove(p.id);
+      });
+      await prefs.setStringList('favorites_list', favsList);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Dihapus dari favorit')));
+    } else {
+      // Add product as JSON to favorites_list
+      final encoded = jsonEncode(p.toJson());
+      favsList.add(encoded);
+      await prefs.setStringList('favorites_list', favsList);
+      setState(() {
+        _favoriteIds.add(p.id);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ditambahkan ke favorit')));
+    }
   }
 
   Future<void> _addToCart(Product p) async {
@@ -332,7 +367,10 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
           double responsiveSize(double mobileSp, double desktopPx) => isDesktop ? desktopPx : mobileSp.sp;
 
           final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
-          final cardColor = Theme.of(context).cardColor;
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          final cardColor = isDark
+              ? Theme.of(context).cardColor
+              : Colors.grey[200]!; // Pergelap kartu di light mode
           final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
           // Compute a readable foreground color on top of the current accent
           final accentOnColor = _currentAccentColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
@@ -342,17 +380,89 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
-              leading: Builder(
-                builder: (ctx) => IconButton(
-                  icon: Icon(Icons.menu, color: textColor, size: 28),
-                  tooltip: 'Menu',
-                  onPressed: () => Scaffold.of(ctx).openDrawer(),
+              // Custom leading with hamburger menu + logo
+              leadingWidth: isDesktop ? 180 : 200,
+              leading: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Builder(
+                      builder: (ctx) => IconButton(
+                        icon: Icon(Icons.menu, color: textColor, size: 28),
+                        tooltip: 'Menu',
+                        onPressed: () => Scaffold.of(ctx).openDrawer(),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                      ),
+                    ),
+                    SizedBox(width: isDesktop ? 8 : 4),
+                    // Logo text dengan Flexible agar responsif
+                    Flexible(
+                      child: Text(
+                        'UrbanWear',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.deepPurple,
+                          fontWeight: FontWeight.bold,
+                          fontSize: isDesktop ? 18 : 16,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               // Use theme text color for the title so it is readable in both light and dark modes
               title: Text('Home', style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
               centerTitle: true,
               actions: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Stack(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.shopping_cart),
+                        tooltip: 'Keranjang',
+                        onPressed: () {
+                          context.push(AppRoutes.cart);
+                        },
+                      ),
+                      FutureBuilder<SharedPreferences>(
+                        future: SharedPreferences.getInstance(),
+                        builder: (context, snap) {
+                          if (!snap.hasData) return const SizedBox.shrink();
+                          final prefs = snap.data!;
+                          final cartList = prefs.getStringList('cart_items') ?? [];
+                          if (cartList.isEmpty) return const SizedBox.shrink();
+                          return Positioned(
+                            top: 6,
+                            right: 6,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(10)),
+                              constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+                              child: Text(cartList.length.toString(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12), textAlign: TextAlign.center),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                // Chat button next to cart
+                IconButton(
+                  icon: const Icon(Icons.chat_bubble),
+                  tooltip: 'Chat',
+                  onPressed: () {
+                    context.push(AppRoutes.chat, extra: {
+                      'userId': widget.user.id.toString(),
+                      'userName': widget.user.username,
+                      'userEmail': widget.user.email,
+                    });
+                  },
+                ),
                 Padding(
                   padding: const EdgeInsets.only(right: 12.0),
                   child: GestureDetector(
@@ -390,7 +500,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                                 scale: _avatarScaleAnim,
                                 child: CircleAvatar(
                                   radius: isDesktop ? 18 : 16,
-                                  backgroundImage: const AssetImage('assets/images/logo.png'),
+                                  backgroundImage: const AssetImage('assets/images/logo2.png'),
                                   backgroundColor: Colors.grey[300],
                                 ),
                               );
@@ -401,7 +511,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                           scale: _avatarScaleAnim,
                           child: CircleAvatar(
                             radius: isDesktop ? 18 : 16,
-                            backgroundImage: const AssetImage('assets/images/logo.png'),
+                            backgroundImage: const AssetImage('assets/images/logo2.png'),
                             backgroundColor: Colors.grey[300],
                           ),
                         );
@@ -648,89 +758,128 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
             )
           ],
         ),
         child: Stack(
           children: [
             Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-                child: Container(
-                  width: double.infinity,
-                  color: Colors.grey[200],
-                  child: Image.network(
-                    product.image,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      if (product.image.startsWith('assets/')) {
-                        return Image.asset(
-                          product.image,
-                          fit: BoxFit.cover,
-                          errorBuilder: (ctx, err, st) => const Center(
-                            child: Icon(Icons.broken_image, color: Color.fromARGB(255, 221, 68, 68)),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: Container(
+                            color: Colors.grey[100],
+                            child: Image.network(
+                              product.image,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              errorBuilder: (context, error, stackTrace) {
+                                if (product.image.startsWith('assets/')) {
+                                  return Image.asset(
+                                    product.image,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (ctx, err, st) => const Center(
+                                      child: Icon(Icons.broken_image, color: Color.fromARGB(255, 221, 68, 68)),
+                                    ),
+                                  );
+                                }
+                                return const Center(child: Icon(Icons.broken_image, color: Colors.grey));
+                              },
+                            ),
                           ),
-                        );
-                      }
-                      return const Center(child: Icon(Icons.broken_image, color: Colors.grey));
-                    },
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: responsiveSize(10, 14),
-                      color: textColor,
+                        ),
+                        // Price badge top-left
+                        Positioned(
+                          left: 8,
+                          top: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor.withOpacity(0.95),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              formatRupiah.format(product.price),
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: responsiveSize(8, 12)),
+                            ),
+                          ),
+                        ),
+
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          formatRupiah.format(product.price),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: responsiveSize(10, 14),
+                          color: textColor,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      // Kategori di bawah nama produk
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.deepPurple.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          product.category.toString(),
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: responsiveSize(9, 13),
-                            color: Theme.of(context).primaryColor,
+                            fontSize: responsiveSize(7, 9),
+                            color: Colors.deepPurple,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        InkWell(
-                          onTap: () => _addToCart(product),
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).primaryColor,
-                              shape: BoxShape.circle,
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.star, size: 12, color: Colors.amber),
+                              const SizedBox(width: 6),
+                              Text(product.rating.toStringAsFixed(1), style: TextStyle(fontSize: responsiveSize(8, 11), color: Colors.grey[700])),
+                            ],
+                          ),
+                          InkWell(
+                            onTap: () => _addToCart(product),
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.add, size: 14, color: Colors.white),
                             ),
-                            child: const Icon(Icons.add, size: 14, color: Colors.white),
                           ),
-                        ),
-                      ],
-                    )
-                ],
-              ),
-            )
-          ],
+                        ],
+                      )
+                    ],
+                  ),
+                )
+              ],
             ),
-            // Favorite heart in top-right
+            // Favorite heart in top-right separated to float above image
             Positioned(
               right: 8,
               top: 8,
@@ -759,7 +908,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     final List<String> carouselImages = [
       "assets/images/Hoodie1.png",
       "assets/images/Hoodie2.png",
-      "assets/images/Kaos1.png",
+      "assets/images/Kaos3.png",
       "assets/images/Kaos2.png",
     ];
 
@@ -977,11 +1126,19 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
             onTap: () => Navigator.pop(context),
           ),
           ListTile(
-            leading: const Icon(Icons.shopping_cart),
-            title: Text(LocalizationService.get(lang, 'cart')),
+            leading: const Icon(Icons.receipt_long),
+            title: const Text('Riwayat Pembelian'),
             onTap: () {
               Navigator.pop(context);
-              context.push(AppRoutes.cart);
+              context.push(AppRoutes.purchaseHistory);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.favorite),
+            title: const Text('Favorit'),
+            onTap: () {
+              Navigator.pop(context);
+              context.push(AppRoutes.favorit);
             },
           ),
           ListTile(

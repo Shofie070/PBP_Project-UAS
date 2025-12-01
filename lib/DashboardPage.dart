@@ -547,15 +547,60 @@ class _DashboardPageState extends State<DashboardPage> {
       backgroundColor: Colors.transparent,
       elevation: 0,
       iconTheme: const IconThemeData(color: Colors.black), // Icon hamburger hitam
-      title: isDesktop ? null : Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        title: Flexible(
+          child: Row(
         children: [
-          Text("Hello, ${widget.user.username}", style: TextStyle(color: Colors.grey, fontSize: 12)),
-          Text("Let's Shop", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
+          // Logo aplikasi
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Center(
+              child: Text(
+                'UW',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 2.w),
+          Text(
+            'Urban Wear',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: isDesktop ? 18 : 14.sp,
+            ),
+          ),
         ],
-      ),
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        ),
+        ),
       centerTitle: false,
       actions: [
+        // Cart button
+        IconButton(
+          icon: const Icon(Icons.shopping_cart, color: Colors.black),
+          onPressed: () => context.go(AppRoutes.cart),
+        ),
+        // Chat button
+        IconButton(
+          icon: const Icon(Icons.chat_bubble, color: Colors.black),
+          onPressed: () {
+            context.push(AppRoutes.chat, extra: {
+              'userId': widget.user.id.toString(),
+              'userName': widget.user.username,
+              'userEmail': widget.user.email,
+            });
+          },
+        ),
         // User Avatar (kanan)
         Padding(
           padding: const EdgeInsets.only(right: 16.0),
@@ -692,6 +737,14 @@ class _DashboardPageState extends State<DashboardPage> {
             onTap: () {
               Navigator.pop(context);
               context.go(AppRoutes.about);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.history),
+            title: const Text("Riwayat Pembelian"),
+            onTap: () {
+              Navigator.pop(context);
+              context.go(AppRoutes.purchaseHistory);
             },
           ),
           const Divider(),

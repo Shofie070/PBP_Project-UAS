@@ -22,6 +22,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   sizer: ^2.0.15
   go_router: ^13.0.0
+  flutter_rating_bar: ^4.0.0
 
   # NETWORK & LAUNCHER
   dio: ^5.9.0
@@ -42,10 +43,5 @@ flutter:
   
   assets:
     - assets/images/
-    - assets/images/background.png   # tambahin kalau ada background
+    - assets/images/bg2.jpg   # tambahin kalau ada background
     # tambahin asset lain kalau perlu
-
-  # fonts: (kalau pake custom font, tambahin di sini nanti)
-  #   - family: Poppins
-  #     fonts:
-  #       - asset: assets/fonts/Poppins-Regular.ttf
