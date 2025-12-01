@@ -13,11 +13,12 @@ import 'page/keranjang_page.dart';
 import 'page/profile.dart';
 import 'page/about_us.dart';
 import 'page/product.dart';
-import 'page/detail_kaos.dart';
-import 'page/detail_hoodie.dart';
 import 'page/detail_produk.dart';
 import 'page/menu_admin.dart';
 import 'page/payment_page.dart';
+import 'page/riwayat_pembelian.dart';
+import 'page/favorit_page.dart';
+import 'page/chat.dart';
 
 // Import model dan service
 import 'model/model.dart';
@@ -46,11 +47,29 @@ final GoRouter _appRouter = GoRouter(
     ),
     // ... Copy sisa routes lainnya sama persis ...
     GoRoute(path: AppRoutes.cart, builder: (context, state) => KeranjangPage(cartModel: DashboardModel())),
-    GoRoute(path: AppRoutes.about, builder: (context, state) => const AboutUs()),
+    GoRoute(path: AppRoutes.purchaseHistory, builder: (context, state) => const RiwayatPembelianPage()),
+    GoRoute(path: AppRoutes.favorit, builder: (context, state) => const FavoritPage()),
+     GoRoute(path: AppRoutes.about, builder: (context, state) => const AboutUs()),
     GoRoute(path: AppRoutes.profile, builder: (context, state) => ProfilePage(user: UserModel(username: 'User', email: ''))),
      GoRoute(path: AppRoutes.checkout, builder: (context, state) => const checkout_page.CheckoutPage()),
      GoRoute(path: AppRoutes.detailProduk, builder: (context, state) => DetailProduk(product: state.extra as Map<String, dynamic>)),
-     GoRoute(path: AppRoutes.payment, builder: (context, state) => PaymentPage(totalAmount: state.extra as double? ?? 0.0)),
+     GoRoute(path: AppRoutes.payment, builder: (context, state) {
+       final extra = state.extra as Map<String, dynamic>?;
+       final products = extra?['products'] as List<Product>? ?? [];
+       final totalAmount = extra?['totalAmount'] as double? ?? 0.0;
+       return PaymentPage(products: products, totalAmount: totalAmount);
+     }),
+    GoRoute(path: AppRoutes.chat, builder: (context, state) {
+      final extra = state.extra as Map<String, dynamic>?;
+      final userId = extra?['userId'] as String? ?? '';
+      final userName = extra?['userName'] as String? ?? 'User';
+      final userEmail = extra?['userEmail'] as String? ?? '';
+      return ChatPage(
+        userId: userId,
+        userName: userName,
+        userEmail: userEmail,
+      );
+    }),
   ],
 );
 

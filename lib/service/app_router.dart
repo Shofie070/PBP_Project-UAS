@@ -11,6 +11,9 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String about = '/about';
   static const String menuAdmin = '/menu-admin';
+  static const String purchaseHistory = '/riwayat-pembelian';
+  static const String favorit = '/favorit';
+  static const String chat = '/chat';
   
   // Product routes
   static const String product = '/product';
