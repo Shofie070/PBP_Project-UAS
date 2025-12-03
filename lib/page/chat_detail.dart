@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sizer/sizer.dart';
+
 import '../model/model.dart';
 import '../service/chat_service.dart';
 
@@ -41,7 +41,9 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   }
 
   Future<void> _sendMessage() async {
-    if (_messageController.text.trim().isEmpty) return;
+    final textToSend =
+        _messageController.text.trim(); // Capture text before clearing
+    if (textToSend.isEmpty) return;
 
     setState(() => _isSending = true);
 
@@ -50,7 +52,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         _currentRoom.id,
         widget.userId,
         widget.userName,
-        _messageController.text.trim(),
+        textToSend,
       );
 
       _messageController.clear();
@@ -68,14 +70,22 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         // Handle error silently
       }
 
-      // Simulate admin reply after 2 seconds
-      await Future.delayed(const Duration(seconds: 2));
       if (mounted) {
         try {
-          await _chatService.sendAdminReply(
-            _currentRoom.id,
-            'Terima kasih atas pesan Anda. Tim support kami akan segera membantu!',
-          );
+          if (_currentRoom.id.startsWith('bot_')) {
+            // Bot reply (real AI, no artificial delay needed)
+            await _chatService.sendBotReply(
+              _currentRoom.id,
+              textToSend, // Use captured text
+            );
+          } else {
+            // Admin reply simulation
+            await Future.delayed(const Duration(seconds: 1));
+            await _chatService.sendAdminReply(
+              _currentRoom.id,
+              'Terima kasih atas pesan Anda. Tim support kami akan segera membantu!',
+            );
+          }
 
           final updatedAgain = await _chatService.getChatRoom(
             widget.userId,
@@ -104,113 +114,68 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final screenWidth = MediaQuery.of(context).size.width;
-    
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 1,
-        surfaceTintColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, size: 20),
-          onPressed: () async {
-            try {
-              // Try to pop normally. maybePop returns false if there's nothing to pop.
-              final didPop = await Navigator.maybePop(context);
-              if (!didPop) {
-                // Fallback: navigate to DashboardPage so we don't trigger a rebuild
-                // of a page that may use uninitialized locale data.
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => Scaffold(
-                      appBar: AppBar(title: const Text('Beranda')),
-                      body: const Center(child: Text('Halaman beranda')),
+    // Common Chat UI Content
+    Widget chatContent = Column(
+      children: [
+        // Custom Header
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.blue.shade600,
+                Colors.blue.shade400,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: Colors.white.withOpacity(0.2),
+                child:
+                    const Icon(Icons.smart_toy, color: Colors.white, size: 18),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Urban Assistant',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                );
-              }
-            } catch (e) {
-              // If something unexpected happens, show a brief message and
-              // navigate to the Dashboard as a safe fallback.
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Gagal kembali: ${e.toString()}')),
-                );
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => Scaffold(
-                      appBar: AppBar(title: const Text('Beranda')),
-                      body: const Center(child: Text('Halaman beranda')),
+                    Text(
+                      'Online',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11,
+                      ),
                     ),
-                  ),
-                );
-              }
-            }
-          },
-        ),
-        title: Row(
-          children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: Colors.blue.shade100,
-              child: Text(
-                'A',
-                style: TextStyle(
-                  color: Colors.blue.shade700,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Admin Support',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: const BoxDecoration(
-                          color: Colors.green,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Online',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.green.shade700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              IconButton(
+                icon: const Icon(Icons.close, color: Colors.white, size: 20),
+                onPressed: () => Navigator.pop(context),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-      body: Column(
-        children: [
-          // Messages list
-          Expanded(
+
+        // Messages Area
+        Expanded(
+          child: Container(
+            color: isDark ? Colors.black : const Color(0xFFF5F7FB),
             child: _currentRoom.messages.isEmpty
                 ? Center(
                     child: Column(
@@ -218,14 +183,13 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                       children: [
                         Icon(
                           Icons.chat_bubble_outline,
-                          size: 80,
-                          color: Colors.grey[300],
+                          size: 60,
+                          color: Colors.grey[400],
                         ),
-                        SizedBox(height: 2.h),
+                        const SizedBox(height: 16),
                         Text(
                           'Mulai percakapan',
                           style: TextStyle(
-                            fontSize: 16,
                             color: Colors.grey[600],
                             fontWeight: FontWeight.w500,
                           ),
@@ -235,224 +199,162 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                   )
                 : ListView.builder(
                     reverse: true,
-                    padding: EdgeInsets.all(2.w),
+                    padding: const EdgeInsets.all(16),
                     itemCount: _currentRoom.messages.length,
                     itemBuilder: (context, index) {
-                      final message =
-                          _currentRoom.messages[_currentRoom.messages.length - 1 - index];
-                      final hour = message.timestamp.hour.toString().padLeft(2, '0');
-                      final minute = message.timestamp.minute.toString().padLeft(2, '0');
-                      final time = '$hour:$minute';
+                      final message = _currentRoom
+                          .messages[_currentRoom.messages.length - 1 - index];
+                      final isMe = !message.isFromAdmin;
 
                       return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
-                          child: Align(
-                            alignment: message.isFromAdmin ? Alignment.centerLeft : Alignment.centerRight,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: message.isFromAdmin
-                                  ? MainAxisAlignment.start
-                                  : MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                if (message.isFromAdmin)
-                                  CircleAvatar(
-                                    radius: 12,
-                                    backgroundColor: Colors.blue.shade100,
-                                    child: Text(
-                                      'A',
-                                      style: TextStyle(
-                                        color: Colors.blue.shade600,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 8,
-                                      ),
-                                    ),
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          mainAxisAlignment: isMe
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            if (!isMe) ...[
+                              CircleAvatar(
+                                radius: 14,
+                                backgroundColor: Colors.blue.shade100,
+                                child: Icon(Icons.smart_toy,
+                                    size: 16, color: Colors.blue.shade700),
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isMe
+                                      ? Colors.blue.shade600
+                                      : (isDark
+                                          ? Colors.grey[800]
+                                          : Colors.white),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: const Radius.circular(16),
+                                    topRight: const Radius.circular(16),
+                                    bottomLeft: Radius.circular(isMe ? 16 : 4),
+                                    bottomRight: Radius.circular(isMe ? 4 : 16),
                                   ),
-                                const SizedBox(width: 6),
-                                Flexible(
-                                  child: Column(
-                                    crossAxisAlignment: message.isFromAdmin
-                                        ? CrossAxisAlignment.start
-                                        : CrossAxisAlignment.end,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        constraints: BoxConstraints(
-                                          maxWidth: screenWidth * 0.65,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: message.isFromAdmin
-                                              ? Colors.grey[100]
-                                              : Colors.blue,
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: const Radius.circular(12),
-                                            topRight: const Radius.circular(12),
-                                            bottomLeft: Radius.circular(message.isFromAdmin ? 0 : 12),
-                                            bottomRight: Radius.circular(message.isFromAdmin ? 12 : 0),
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withOpacity(0.05),
-                                              blurRadius: 3,
-                                              offset: const Offset(0, 1),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Text(
-                                          message.message,
-                                          style: TextStyle(
-                                            fontSize: 6.5.sp,
-                                            color: message.isFromAdmin
-                                                ? Colors.black87
-                                                : Colors.white,
-                                            height: 1.3,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 3),
-                                      Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: message.isFromAdmin ? 0 : 4,
-                                        ),
-                                        child: Text(
-                                          time,
-                                          style: TextStyle(
-                                            fontSize: 5.sp,
-                                            color: Colors.grey[500],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 5,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Text(
+                                  message.message,
+                                  style: TextStyle(
+                                    color: isMe
+                                        ? Colors.white
+                                        : (isDark
+                                            ? Colors.white
+                                            : Colors.black87),
+                                    fontSize: 14,
+                                    height: 1.4,
                                   ),
                                 ),
-                                if (!message.isFromAdmin) const SizedBox(width: 6),
-                              ],
+                              ),
                             ),
-                            ),
-                          );
+                          ],
+                        ),
+                      );
                     },
                   ),
           ),
-          // Message input - sama ukuran dengan search bar di dashboard
-          Container(
-              height: 48,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: isDark ? Colors.grey[900] : Colors.white,
-              border: Border(
-                top: BorderSide(
-                  color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
-                  width: 0.5,
-                ),
+        ),
+
+        // Input Area
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            border: Border(
+              top: BorderSide(
+                color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
-                  blurRadius: 4,
-                  offset: const Offset(0, -1),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    minLines: 1,
-                    maxLines: 1,
-                    enabled: !_isSending,
-                    textAlignVertical: TextAlignVertical.center,
-                      style: const TextStyle(fontSize: 13),
-                    decoration: InputDecoration(
-                      hintText: 'Tulis pesan...',
-                      hintStyle: TextStyle(
-                          fontSize: 12,
-                        color: Colors.grey[400],
-                      ),
-                      filled: true,
-                      fillColor: isDark ? Colors.grey[800] : Colors.grey[50],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(
-                          color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                          width: 0.5,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(
-                          color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                          width: 0.5,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(
-                          color: Colors.blue.shade300,
-                          width: 1,
-                        ),
-                      ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 8,
-                        ),
-                      isDense: true,
-                    ),
-                  ),
-                ),
-                  const SizedBox(width: 10),
-                GestureDetector(
-                  onTap: _isSending ? null : _sendMessage,
-                  child: Container(
-                      width: 40,
-                      height: 40,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.blue.shade400,
-                          Colors.blue.shade600,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.blue.withOpacity(0.3),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: _isSending
-                          ? SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white.withOpacity(0.8),
-                                ),
-                              ),
-                            )
-                          : Icon(
-                              Icons.send_rounded,
-                                size: 18,
-                              color: Colors.white,
-                            ),
-                    ),
-                  ),
-                ),
-              ],
             ),
           ),
-        ],
-      ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.grey[900] : const Color(0xFFF5F7FB),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: TextField(
+                    controller: _messageController,
+                    enabled: !_isSending,
+                    decoration: const InputDecoration(
+                      hintText: 'Tulis pesan...',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                    ),
+                    style: const TextStyle(fontSize: 14),
+                    minLines: 1,
+                    maxLines: 3,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: _isSending ? null : _sendMessage,
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.blue.shade500,
+                        Colors.blue.shade700,
+                      ],
+                    ),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: _isSending
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Icon(
+                            Icons.send_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+
+    return Scaffold(
+      body: SafeArea(child: chatContent),
     );
   }
 }
