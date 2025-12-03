@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
+import 'package:lottie/lottie.dart'; // Import package Lottie
 import '../../model/model.dart';
 import '../../service/app_router.dart';
 
@@ -18,23 +19,28 @@ class _LoginPageState extends State<LoginPage> {
   bool _obscureText = true;
   bool _keepLoggedIn = true;
 
+  // --- LOGIKA LOGIN ---
   void _login() async {
-    // ... (Logika login tetap sama) ...
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
+    // Validasi Input Kosong
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Email dan Password wajib diisi")),
       );
       return;
     }
+
+    // Cek Hardcoded Admin
     const String adminEmail = 'admin@admin.com';
     const String adminPassword = 'admin123';
+    
     if (email == adminEmail && password == adminPassword) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('is_logged_in', true);
       await prefs.setString('current_user_email', adminEmail);
+      
       if (mounted) {
         context.go(
           AppRoutes.dashboard,
@@ -43,21 +49,29 @@ class _LoginPageState extends State<LoginPage> {
       }
       return;
     }
+
+    // Cek User Terdaftar (dari Shared Preferences)
     final prefs = await SharedPreferences.getInstance();
     final storedEmail = prefs.getString('user_email');
     final storedPassword = prefs.getString('user_password');
     final storedName = prefs.getString('user_name') ?? 'User';
+    
     if (storedEmail == null || storedPassword == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content:
-                Text("Akun belum terdaftar. Silakan daftar terlebih dahulu.")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content:
+                  Text("Akun belum terdaftar. Silakan daftar terlebih dahulu.")),
+        );
+      }
       return;
     }
+
+    // Validasi User Biasa
     if (email == storedEmail && password == storedPassword) {
       await prefs.setBool('is_logged_in', true);
       await prefs.setString('current_user_email', storedEmail);
+      
       if (mounted) {
         context.go(
           AppRoutes.dashboard,
@@ -65,10 +79,12 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Email atau password salah. Silakan coba lagi.")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Email atau password salah. Silakan coba lagi.")),
+        );
+      }
     }
   }
 
@@ -78,18 +94,21 @@ class _LoginPageState extends State<LoginPage> {
       backgroundColor: Colors.white,
       body: LayoutBuilder(
         builder: (context, constraints) {
+          // Cek apakah layar Desktop (> 900px)
           bool isDesktop = constraints.maxWidth > 900;
 
-          // --- FUNGSI STANDARD UKURAN (Login & Register pakai ini) ---
+          // Fungsi Helper untuk ukuran responsif (Desktop pakai Pixel, Mobile pakai Sizer .sp)
           double responsiveSize(double mobileSp, double desktopPx) {
             return isDesktop ? desktopPx : mobileSp.sp;
           }
 
           return Row(
             children: [
-              // --- KIRI: FORM ---
+              // =========================================
+              // BAGIAN KIRI: FORM LOGIN
+              // =========================================
               Expanded(
-                flex: isDesktop ? 4 : 10,
+                flex: isDesktop ? 4 : 10, // Di HP ambil full width
                 child: Center(
                   child: SingleChildScrollView(
                     child: Padding(
@@ -101,22 +120,22 @@ class _LoginPageState extends State<LoginPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Logo
+                            // Logo App
                             Text(
                               "UrbanWear",
                               style: TextStyle(
-                                fontSize: responsiveSize(22, 32), // DISAMAKAN
+                                fontSize: responsiveSize(22, 32),
                                 fontWeight: FontWeight.bold,
                                 color: Theme.of(context).primaryColor,
                               ),
                             ),
                             SizedBox(height: responsiveSize(1.h, 20)),
 
-                            // Judul
+                            // Judul Halaman
                             Text(
                               "Selamat Datang!",
                               style: TextStyle(
-                                fontSize: responsiveSize(18, 24), // DISAMAKAN
+                                fontSize: responsiveSize(18, 24),
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black87,
                               ),
@@ -127,17 +146,17 @@ class _LoginPageState extends State<LoginPage> {
                             Text(
                               "Silakan masuk untuk melanjutkan",
                               style: TextStyle(
-                                fontSize: responsiveSize(10, 14), // DISAMAKAN
+                                fontSize: responsiveSize(10, 14),
                                 color: Colors.grey[600],
                               ),
                             ),
                             SizedBox(height: responsiveSize(3.h, 40)),
 
-                            // Input Email
+                            // Input Field: Email
                             TextFormField(
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
-                              style: TextStyle(fontSize: responsiveSize(11, 14)), // DISAMAKAN
+                              style: TextStyle(fontSize: responsiveSize(11, 14)),
                               decoration: InputDecoration(
                                 hintText: 'Email',
                                 filled: true,
@@ -148,16 +167,16 @@ class _LoginPageState extends State<LoginPage> {
                                   borderSide: BorderSide.none,
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 16, horizontal: 20), // DISAMAKAN
+                                    vertical: 16, horizontal: 20),
                               ),
                             ),
                             SizedBox(height: responsiveSize(2.h, 20)),
 
-                            // Input Password
+                            // Input Field: Password
                             TextFormField(
                               controller: _passwordController,
                               obscureText: _obscureText,
-                              style: TextStyle(fontSize: responsiveSize(11, 14)), // DISAMAKAN
+                              style: TextStyle(fontSize: responsiveSize(11, 14)),
                               decoration: InputDecoration(
                                 hintText: 'Password',
                                 filled: true,
@@ -181,7 +200,7 @@ class _LoginPageState extends State<LoginPage> {
                                   borderSide: BorderSide.none,
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 16, horizontal: 20), // DISAMAKAN
+                                    vertical: 16, horizontal: 20),
                               ),
                             ),
                             SizedBox(height: responsiveSize(1.h, 10)),
@@ -193,7 +212,7 @@ class _LoginPageState extends State<LoginPage> {
                                 Row(
                                   children: [
                                     Transform.scale(
-                                      scale: isDesktop ? 1.0 : 0.8, // Kecilkan checkbox di HP
+                                      scale: isDesktop ? 1.0 : 0.8,
                                       child: Checkbox(
                                         value: _keepLoggedIn,
                                         onChanged: (bool? value) {
@@ -210,20 +229,11 @@ class _LoginPageState extends State<LoginPage> {
                                         style: TextStyle(fontSize: responsiveSize(9, 13))),
                                   ],
                                 ),
-                                TextButton(
-                                  onPressed: () {},
-                                  child: Text(
-                                    'Forgot password?',
-                                    style: TextStyle(
-                                        fontSize: responsiveSize(9, 13),
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
                               ],
                             ),
                             SizedBox(height: responsiveSize(2.h, 30)),
 
-                            // Tombol Masuk
+                            // Tombol Login
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
@@ -231,7 +241,7 @@ class _LoginPageState extends State<LoginPage> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Theme.of(context).primaryColor,
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 16), // DISAMAKAN
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30),
                                   ),
@@ -240,7 +250,7 @@ class _LoginPageState extends State<LoginPage> {
                                 child: Text(
                                   "MASUK",
                                   style: TextStyle(
-                                    fontSize: responsiveSize(12, 14), // DISAMAKAN
+                                    fontSize: responsiveSize(12, 14),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -248,7 +258,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             SizedBox(height: responsiveSize(2.h, 20)),
 
-                            // Link Register
+                            // Link ke Register
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -277,7 +287,9 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
 
-              // --- KANAN: GAMBAR (Desktop Only) ---
+              // =========================================
+              // BAGIAN KANAN: GAMBAR & LOTTIE (Desktop Only)
+              // =========================================
               if (isDesktop)
                 Expanded(
                   flex: 6,
@@ -285,12 +297,30 @@ class _LoginPageState extends State<LoginPage> {
                     height: double.infinity,
                     decoration: const BoxDecoration(
                       image: DecorationImage(
-                        image: AssetImage('assets/images/bg3.jpg'),
+                        image: AssetImage('assets/images/bg3.jpg'), // Background Image
                         fit: BoxFit.cover,
                       ),
                     ),
-                    child: Container(
-                      color: Colors.black.withOpacity(0.2),
+                    child: Stack(
+                      children: [
+                        // Layer 1: Overlay Gelap Transparan
+                        Container(
+                          color: Colors.black.withOpacity(0.3),
+                        ),
+                        
+                        // Layer 2: Animasi Lottie (Dibalik Horizontal)
+                        Center(
+                          child: Transform.flip(
+                            flipX: true, // MEMBALIK ARAH GAMBAR (MIRROR)
+                            child: Lottie.asset(
+                              'assets/json/person1.json',
+                              width: 600,
+                              height: 600,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

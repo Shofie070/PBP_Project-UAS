@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
+import 'package:lottie/lottie.dart'; // 1. Import Lottie
 import '../../service/app_router.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -64,14 +65,16 @@ class _RegisterPageState extends State<RegisterPage> {
         builder: (context, constraints) {
           bool isDesktop = constraints.maxWidth > 900;
 
-          // --- FUNGSI STANDARD UKURAN (Sama persis dengan Login) ---
+          // --- FUNGSI STANDARD UKURAN ---
           double responsiveSize(double mobileSp, double desktopPx) {
             return isDesktop ? desktopPx : mobileSp.sp;
           }
 
           return Row(
             children: [
-              // --- KIRI: FORM ---
+              // =========================================
+              // BAGIAN KIRI: FORM REGISTER
+              // =========================================
               Expanded(
                 flex: isDesktop ? 4 : 10,
                 child: Center(
@@ -89,7 +92,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             Text(
                               "UrbanWear",
                               style: TextStyle(
-                                fontSize: responsiveSize(22, 32), // DISAMAKAN
+                                fontSize: responsiveSize(22, 32),
                                 fontWeight: FontWeight.bold,
                                 color: Theme.of(context).primaryColor,
                               ),
@@ -100,7 +103,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             Text(
                               "Buat Akun Baru",
                               style: TextStyle(
-                                fontSize: responsiveSize(18, 24), // DISAMAKAN
+                                fontSize: responsiveSize(18, 24),
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black87,
                               ),
@@ -129,7 +132,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Theme.of(context).primaryColor,
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 16), // DISAMAKAN
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30),
                                   ),
@@ -138,7 +141,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 child: Text(
                                   "Daftar",
                                   style: TextStyle(
-                                    fontSize: responsiveSize(12, 14), // DISAMAKAN
+                                    fontSize: responsiveSize(12, 14),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -173,16 +176,40 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
 
-              // --- KANAN: GAMBAR (Desktop Only) ---
+              // =========================================
+              // BAGIAN KANAN: GAMBAR & LOTTIE (Desktop Only)
+              // =========================================
               if (isDesktop)
                 Expanded(
                   flex: 6,
                   child: Container(
+                    height: double.infinity,
                     decoration: const BoxDecoration(
                       image: DecorationImage(
-                        image: AssetImage('assets/images/bg3.jpg'),
+                        image: AssetImage('assets/images/bg3.jpg'), // Background Image
                         fit: BoxFit.cover,
                       ),
+                    ),
+                    child: Stack(
+                      children: [
+                        // Layer 1: Overlay Gelap Transparan
+                        Container(
+                          color: Colors.black.withOpacity(0.3),
+                        ),
+                        
+                        // Layer 2: Animasi Lottie (Dibalik Horizontal/Mirror)
+                        Center(
+                          child: Transform.flip(
+                            flipX: true, // MEMBALIK ARAH MENGHADAP KIRI
+                            child: Lottie.asset(
+                              'assets/json/person1.json',
+                              width: 600,
+                              height: 600,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -198,7 +225,7 @@ class _RegisterPageState extends State<RegisterPage> {
     return TextFormField(
       controller: controller,
       obscureText: isPassword,
-      style: TextStyle(fontSize: responsiveSize(11.0, 14.0)), // DISAMAKAN FONT SIZE INPUT
+      style: TextStyle(fontSize: responsiveSize(11.0, 14.0)),
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
@@ -208,7 +235,7 @@ class _RegisterPageState extends State<RegisterPage> {
           borderRadius: BorderRadius.circular(30),
           borderSide: BorderSide.none,
         ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20), // DISAMAKAN PADDING
+        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       ),
     );
   }
