@@ -1141,14 +1141,27 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
               context.push(AppRoutes.favorit);
             },
           ),
+          
+          // --- LINK MENU ABOUT US (TIM) ---
           ListTile(
-            leading: const Icon(Icons.info),
+            leading: const Icon(Icons.groups),
             title: const Text("About Us"),
             onTap: () {
               Navigator.pop(context);
               context.push(AppRoutes.about);
             },
           ),
+
+          // --- LINK MENU TENTANG APLIKASI (BARU) ---
+          ListTile(
+            leading: const Icon(Icons.info_outline), // Icon diperbarui
+            title: const Text("Tentang Aplikasi"),
+            onTap: () {
+              Navigator.pop(context);
+              context.push(AppRoutes.aboutApp); // Navigasi ke About App
+            },
+          ),
+
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),

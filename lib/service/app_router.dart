@@ -10,6 +10,7 @@ class AppRoutes {
   static const String cart = '/cart';
   static const String profile = '/profile';
   static const String about = '/about';
+  static const String aboutApp = '/about-app'; // <--- ROUTE BARU DITAMBAHKAN
   static const String menuAdmin = '/menu-admin';
   static const String purchaseHistory = '/riwayat-pembelian';
   static const String favorit = '/favorit';
