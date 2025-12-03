@@ -41,8 +41,9 @@ dev_dependencies:
   flutter_lints: ^3.0.0
 
 flutter:
-  uses-material-design: true   # WAJIB TRUE — getwidget butuh ini!
-  
+  uses-material-design: true
+
+  # Pastikan "assets:" menjorok 2 spasi
   assets:
     - assets/images/
     - assets/images/bg2.jpg   # tambahin kalau ada background
