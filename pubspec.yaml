@@ -26,12 +26,13 @@ dependencies:
 
   # NETWORK & LAUNCHER
   dio: ^5.9.0
-  url_launcher: ^6.1.10
+  url_launcher: ^6.3.2
   device_info_plus: ^12.2.0
   webview_flutter: ^4.13.0
   permission_handler: ^12.0.1
   image_picker: ^1.2.1
   equatable: ^2.0.7
+  font_awesome_flutter: ^10.12.0
 
 dev_dependencies:
   flutter_test:
@@ -44,4 +45,4 @@ flutter:
   assets:
     - assets/images/
     - assets/images/bg2.jpg   # tambahin kalau ada background
-    # tambahin asset lain kalau perlu
+    - assets/images/FOTO KUU.jpg
