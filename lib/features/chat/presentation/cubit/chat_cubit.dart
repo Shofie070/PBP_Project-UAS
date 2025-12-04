@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../chat_service.dart';
+import '../../data/datasources/chat_service.dart';
 import 'chat_state.dart';
 
 class ChatCubit extends Cubit<ChatState> {

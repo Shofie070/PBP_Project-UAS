@@ -13,10 +13,11 @@ class AboutCubit extends Cubit<AboutState> {
 
       final members = [
         const TeamMember(
-          name: 'Shofie',
+          name: 'Shofie Ardhya Shafina',
           nim: '24111814070',
           imagePath: 'assets/images/shofie.jpg',
-          instagram: 'https://www.instagram.com/shofie',
+          instagram:
+              'https://www.instagram.com/shofnotsoph?igsh=YnNvd3MwbmdtYzZi',
           github: 'https://github.com/Shofie070',
         ),
         const TeamMember(
