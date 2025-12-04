@@ -37,6 +37,8 @@ dependencies:
   uuid: ^4.2.1
   http: ^1.1.0
   add_to_cart_animation: ^2.0.4
+  pdf: ^3.11.3
+  printing: ^5.14.2
 
 dev_dependencies:
   flutter_test:

@@ -79,7 +79,8 @@ class _DashboardPageState extends State<DashboardPage>
     });
   }
 
-  void _showFilterSheet(BuildContext context, DashboardState state) {
+  void _showFilterSheet(
+      BuildContext context, DashboardState state, String currentLang) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -102,7 +103,7 @@ class _DashboardPageState extends State<DashboardPage>
                       context.read<DashboardCubit>().selectCategory('Popular');
                       Navigator.pop(ctx);
                     },
-                    child: const Text('Clear'),
+                    child: Text(LocalizationService.get(currentLang, 'clear')),
                   )
                 ],
               ),
@@ -175,8 +176,8 @@ class _DashboardPageState extends State<DashboardPage>
                 },
                 child: Scaffold(
                   backgroundColor: backgroundColor,
-                  appBar: _buildAppBar(
-                      context, isDesktop, responsiveSize, textColor),
+                  appBar: _buildAppBar(context, isDesktop, responsiveSize,
+                      textColor, currentLang),
                   drawer: _buildDrawer(context, currentLang),
                   body: BlocBuilder<DashboardCubit, DashboardState>(
                     builder: (context, state) {
@@ -260,8 +261,8 @@ class _DashboardPageState extends State<DashboardPage>
                                       color: state.currentAccentColor,
                                       borderRadius: BorderRadius.circular(12),
                                       child: InkWell(
-                                        onTap: () =>
-                                            _showFilterSheet(context, state),
+                                        onTap: () => _showFilterSheet(
+                                            context, state, currentLang),
                                         borderRadius: BorderRadius.circular(12),
                                         child: SizedBox(
                                           height: isDesktop ? 48 : 44,
@@ -301,8 +302,8 @@ class _DashboardPageState extends State<DashboardPage>
                                 ),
 
                               // Promo banner
-                              _buildPromoBanner(
-                                  context, state, isDesktop, responsiveSize),
+                              _buildPromoBanner(context, state, isDesktop,
+                                  responsiveSize, currentLang),
 
                               // Header
                               Padding(
@@ -321,15 +322,18 @@ class _DashboardPageState extends State<DashboardPage>
                                               : state.selectedCategory;
                                       String sortSuffix = '';
                                       if (state.sortMode == SortMode.priceAsc) {
-                                        sortSuffix = ' • Harga: Rendah';
+                                        sortSuffix =
+                                            ' • ${LocalizationService.get(currentLang, 'sortPriceAsc')}';
                                       }
                                       if (state.sortMode ==
                                           SortMode.priceDesc) {
-                                        sortSuffix = ' • Harga: Tinggi';
+                                        sortSuffix =
+                                            ' • ${LocalizationService.get(currentLang, 'sortPriceDesc')}';
                                       }
                                       if (state.sortMode ==
                                           SortMode.ratingDesc) {
-                                        sortSuffix = ' • Rating';
+                                        sortSuffix =
+                                            ' • ${LocalizationService.get(currentLang, 'sortRating')}';
                                       }
                                       return Text(
                                         '$headerBase$sortSuffix',
@@ -348,8 +352,8 @@ class _DashboardPageState extends State<DashboardPage>
                                       if (!isFilteredActive) {
                                         return Row(
                                           children: [
-                                            _buildSortMenu(
-                                                context, responsiveSize),
+                                            _buildSortMenu(context,
+                                                responsiveSize, currentLang),
                                             const SizedBox(width: 8),
                                             TextButton(
                                               onPressed: () {
@@ -370,7 +374,7 @@ class _DashboardPageState extends State<DashboardPage>
                                         );
                                       }
                                       return _buildSortMenu(
-                                          context, responsiveSize);
+                                          context, responsiveSize, currentLang);
                                     }),
                                   ],
                                 ),
@@ -416,20 +420,26 @@ class _DashboardPageState extends State<DashboardPage>
     );
   }
 
-  Widget _buildSortMenu(BuildContext context, Function responsiveSize) {
+  Widget _buildSortMenu(
+      BuildContext context, Function responsiveSize, String currentLang) {
     return PopupMenuButton<SortMode>(
       tooltip: 'Sort',
       onSelected: (mode) {
         context.read<DashboardCubit>().changeSortMode(mode);
       },
       itemBuilder: (ctx) => [
-        const PopupMenuItem(value: SortMode.none, child: Text('Default')),
-        const PopupMenuItem(
-            value: SortMode.priceAsc, child: Text('Harga: Rendah → Tinggi')),
-        const PopupMenuItem(
-            value: SortMode.priceDesc, child: Text('Harga: Tinggi → Rendah')),
-        const PopupMenuItem(
-            value: SortMode.ratingDesc, child: Text('Rating: Tinggi')),
+        PopupMenuItem(
+            value: SortMode.none,
+            child: Text(LocalizationService.get(currentLang, 'sortDefault'))),
+        PopupMenuItem(
+            value: SortMode.priceAsc,
+            child: Text(LocalizationService.get(currentLang, 'sortPriceAsc'))),
+        PopupMenuItem(
+            value: SortMode.priceDesc,
+            child: Text(LocalizationService.get(currentLang, 'sortPriceDesc'))),
+        PopupMenuItem(
+            value: SortMode.ratingDesc,
+            child: Text(LocalizationService.get(currentLang, 'sortRating'))),
       ],
       icon: Icon(Icons.sort, color: Colors.grey, size: responsiveSize(16, 20)),
     );
@@ -653,7 +663,7 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   Widget _buildPromoBanner(BuildContext context, DashboardState state,
-      bool isDesktop, Function responsiveSize) {
+      bool isDesktop, Function responsiveSize, String currentLang) {
     // Gradients for each slide
     final List<List<Color>> gradients = [
       [const Color(0xFF6A11CB), const Color(0xFF2575FC)], // Purple - Blue
@@ -729,7 +739,8 @@ class _DashboardPageState extends State<DashboardPage>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Get the Special Discount",
+                                  LocalizationService.get(
+                                      currentLang, 'promoGet'),
                                   textAlign: TextAlign.left,
                                   style: TextStyle(
                                     color: Colors.white,
@@ -746,7 +757,8 @@ class _DashboardPageState extends State<DashboardPage>
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  "50% OFF",
+                                  LocalizationService.get(
+                                      currentLang, 'promoDiscount'),
                                   textAlign: TextAlign.left,
                                   style: TextStyle(
                                     color: Colors.white,
@@ -763,7 +775,8 @@ class _DashboardPageState extends State<DashboardPage>
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  "Limited time only!",
+                                  LocalizationService.get(
+                                      currentLang, 'promoLimited'),
                                   textAlign: TextAlign.left,
                                   style: TextStyle(
                                     color: Colors.white70,
@@ -820,7 +833,7 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context, bool isDesktop,
-      Function responsiveSize, Color textColor) {
+      Function responsiveSize, Color textColor, String currentLang) {
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -850,7 +863,7 @@ class _DashboardPageState extends State<DashboardPage>
         },
       ),
       title: Text(
-        'Home',
+        LocalizationService.get(currentLang, 'home'),
         style: TextStyle(
           color: textColor,
           fontWeight: FontWeight.bold,
@@ -1034,7 +1047,7 @@ class _DashboardPageState extends State<DashboardPage>
             title: const Text("Keranjang"),
             onTap: () {
               Navigator.pop(context);
-              context.go(AppRoutes.cart);
+              context.push(AppRoutes.cart);
             },
           ),
           ListTile(
@@ -1042,7 +1055,7 @@ class _DashboardPageState extends State<DashboardPage>
             title: const Text("Riwayat Pembelian"),
             onTap: () {
               Navigator.pop(context);
-              context.go(AppRoutes.purchaseHistory);
+              context.push(AppRoutes.purchaseHistory);
             },
           ),
           ListTile(
@@ -1050,7 +1063,7 @@ class _DashboardPageState extends State<DashboardPage>
             title: const Text("Favorit"),
             onTap: () {
               Navigator.pop(context);
-              context.go(AppRoutes.favorit);
+              context.push(AppRoutes.favorit);
             },
           ),
           ListTile(

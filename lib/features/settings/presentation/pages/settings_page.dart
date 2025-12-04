@@ -45,7 +45,10 @@ class SettingsPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSectionHeader(context, 'Appearance', responsiveSize),
+                  _buildSectionHeader(
+                      context,
+                      LocalizationService.get(currentLang, 'appearance'),
+                      responsiveSize),
                   SizedBox(height: isDesktop ? 10 : 1.h),
                   Card(
                     elevation: 2,
@@ -79,7 +82,10 @@ class SettingsPage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: isDesktop ? 30 : 3.h),
-                  _buildSectionHeader(context, 'General', responsiveSize),
+                  _buildSectionHeader(
+                      context,
+                      LocalizationService.get(currentLang, 'general'),
+                      responsiveSize),
                   SizedBox(height: isDesktop ? 10 : 1.h),
                   Card(
                     elevation: 2,

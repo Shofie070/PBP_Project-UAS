@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
-import 'package:urban_wear_app/features/shared/routes/app_router.dart';
+
+import 'package:urban_wear_app/features/shared/services/pdf_service.dart';
 
 class RiwayatPembelianPage extends StatefulWidget {
   const RiwayatPembelianPage({super.key});
@@ -73,7 +74,7 @@ class _RiwayatPembelianPageState extends State<RiwayatPembelianPage> {
                 color: Theme.of(context).iconTheme.color,
                 size: responsiveSize(18, 24)),
             onPressed: () {
-              context.go(AppRoutes.dashboard);
+              context.pop();
             },
           ),
           actions: [
@@ -355,13 +356,9 @@ class _RiwayatPembelianPageState extends State<RiwayatPembelianPage> {
                                   label: Text('Download PDF',
                                       style: TextStyle(
                                           fontSize: responsiveSize(10, 12))),
-                                  onPressed: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            'Fitur download PDF akan datang segera'),
-                                      ),
-                                    );
+                                  onPressed: () async {
+                                    await PdfService.generateAndPrintInvoice(
+                                        record);
                                   },
                                 ),
                               ),
@@ -373,13 +370,9 @@ class _RiwayatPembelianPageState extends State<RiwayatPembelianPage> {
                                   label: Text('Cetak',
                                       style: TextStyle(
                                           fontSize: responsiveSize(10, 12))),
-                                  onPressed: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            'Fitur cetak akan datang segera'),
-                                      ),
-                                    );
+                                  onPressed: () async {
+                                    await PdfService.generateAndPrintInvoice(
+                                        record);
                                   },
                                 ),
                               ),
