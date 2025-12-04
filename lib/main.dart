@@ -1,37 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 // Import pages
-import 'page/splash_screen.dart';
-import 'page/login.dart';
-import 'page/register_page.dart';
-import 'page/DashboardPage.dart';
-import 'page/checkout.dart' as checkout_page;
-import 'page/keranjang_page.dart';
-import 'page/profile.dart';
-import 'page/about_us.dart';
-import 'page/about_app.dart'; // <--- IMPORT FILE BARU
-import 'page/product.dart';
-import 'page/detail_produk.dart';
-import 'page/menu_admin.dart';
-import 'page/payment_page.dart';
-import 'page/riwayat_pembelian.dart';
-import 'page/favorit_page.dart';
-import 'page/chat.dart';
+import 'features/shared/presentation/pages/splash_screen.dart';
+import 'features/auth/presentation/pages/login_page.dart';
+import 'features/auth/presentation/pages/register_page.dart';
+import 'features/home/presentation/pages/dashboard_page.dart';
+import 'features/checkout/presentation/pages/checkout_page.dart'
+    as checkout_page;
+import 'features/cart/presentation/pages/cart_page.dart';
+import 'features/profile/presentation/pages/profile_page.dart';
+import 'features/about/presentation/pages/about_us_page.dart';
+import 'features/about/presentation/pages/about_app_page.dart';
+import 'features/product/presentation/pages/product_detail_page.dart';
+import 'features/checkout/presentation/pages/payment_page.dart';
+import 'features/checkout/presentation/pages/purchase_history_page.dart';
+import 'features/product/presentation/pages/favorite_page.dart';
+import 'features/chat/presentation/pages/chat_page.dart';
+import 'features/settings/presentation/pages/settings_page.dart';
 
 // Import model dan service
 import 'model/model.dart';
-import 'service/app_router.dart';
-import 'service/theme_service.dart';
+import 'features/shared/routes/app_router.dart';
+import 'features/shared/services/theme_service.dart';
+import 'features/auth/presentation/cubit/auth_cubit.dart';
+import 'features/product/presentation/cubit/product_cubit.dart';
+import 'features/product/data/datasources/product_service.dart';
+import 'features/cart/presentation/cubit/cart_cubit.dart';
 
 final GoRouter _appRouter = GoRouter(
   initialLocation: AppRoutes.initialRoute,
   routes: [
-    GoRoute(path: AppRoutes.splash, builder: (context, state) => const SplashScreen()),
-    GoRoute(path: AppRoutes.login, builder: (context, state) => const LoginPage()),
-    GoRoute(path: AppRoutes.register, builder: (context, state) => const RegisterPage()),
+    GoRoute(
+        path: AppRoutes.splash,
+        builder: (context, state) => const SplashScreen()),
+    GoRoute(
+        path: AppRoutes.login, builder: (context, state) => const LoginPage()),
+    GoRoute(
+        path: AppRoutes.register,
+        builder: (context, state) => const RegisterPage()),
     GoRoute(
       path: AppRoutes.dashboard,
       builder: (context, state) {
@@ -43,46 +52,61 @@ final GoRouter _appRouter = GoRouter(
           user = UserModel.fromJson(extra);
         }
         return DashboardPage(
-          user: user ?? UserModel(username: 'Guest', email: 'guest@example.com'),
+          user: user ??
+              const UserModel(
+                  username: 'Guest', email: 'guest@example.com', password: ''),
         );
       },
     ),
-    
-    GoRoute(path: AppRoutes.cart, builder: (context, state) => KeranjangPage(cartModel: DashboardModel())),
-    GoRoute(path: AppRoutes.purchaseHistory, builder: (context, state) => const RiwayatPembelianPage()),
-    GoRoute(path: AppRoutes.favorit, builder: (context, state) => const FavoritPage()),
-    
-    GoRoute(path: AppRoutes.about, builder: (context, state) => const AboutUs()),
-    
-    // DAFTARKAN ROUTE BARU DI SINI
-    GoRoute(path: AppRoutes.aboutApp, builder: (context, state) => const AboutAppPage()),
-
     GoRoute(
-      path: AppRoutes.profile, 
-      builder: (context, state) => ProfilePage(user: UserModel(username: 'User', email: ''))
-    ),
-    
-    GoRoute(path: AppRoutes.checkout, builder: (context, state) => const checkout_page.CheckoutPage()),
-    GoRoute(path: AppRoutes.detailProduk, builder: (context, state) => DetailProduk(product: state.extra as Map<String, dynamic>)),
-    
-    GoRoute(path: AppRoutes.payment, builder: (context, state) {
-       final extra = state.extra as Map<String, dynamic>?;
-       final products = extra?['products'] as List<Product>? ?? [];
-       final totalAmount = extra?['totalAmount'] as double? ?? 0.0;
-       return PaymentPage(products: products, totalAmount: totalAmount);
-    }),
-    
-    GoRoute(path: AppRoutes.chat, builder: (context, state) {
-      final extra = state.extra as Map<String, dynamic>?;
-      final userId = extra?['userId'] as String? ?? '';
-      final userName = extra?['userName'] as String? ?? 'User';
-      final userEmail = extra?['userEmail'] as String? ?? '';
-      return ChatPage(
-        userId: userId,
-        userName: userName,
-        userEmail: userEmail,
-      );
-    }),
+        path: AppRoutes.cart,
+        builder: (context, state) => const KeranjangPage()),
+    GoRoute(
+        path: AppRoutes.purchaseHistory,
+        builder: (context, state) => const RiwayatPembelianPage()),
+    GoRoute(
+        path: AppRoutes.favorit,
+        builder: (context, state) => const FavoritPage()),
+    GoRoute(
+        path: AppRoutes.about, builder: (context, state) => const AboutUs()),
+    GoRoute(
+        path: AppRoutes.aboutApp,
+        builder: (context, state) => const AboutAppPage()),
+    GoRoute(
+        path: AppRoutes.profile,
+        builder: (context, state) => const ProfilePage(
+            user: UserModel(username: 'User', email: '', password: ''))),
+    GoRoute(
+        path: AppRoutes.checkout,
+        builder: (context, state) => const checkout_page.CheckoutPage()),
+    GoRoute(
+        path: AppRoutes.detailProduk,
+        builder: (context, state) =>
+            DetailProduk(product: state.extra as Product)),
+    GoRoute(
+        path: AppRoutes.payment,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final products = extra?['products'] as List<Product>? ?? [];
+          final totalAmount = extra?['totalAmount'] as double? ?? 0.0;
+          return PaymentPage(products: products, totalAmount: totalAmount);
+        }),
+    GoRoute(
+        path: AppRoutes.chat,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final userId = extra?['userId'] as String? ?? '';
+          final userName = extra?['userName'] as String? ?? 'User';
+          final userEmail = extra?['userEmail'] as String? ?? '';
+          return ChatPage(
+            userId: userId,
+            userName: userName,
+            userEmail: userEmail,
+          );
+        }),
+    GoRoute(
+        path: AppRoutes.settings,
+        builder: (context, state) => const SettingsPage()),
   ],
 );
 
@@ -98,30 +122,35 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Sizer(
-      builder: (context, orientation, deviceType) {
-        // LISTENER 1: Tema (Dark/Light)
-        return ValueListenableBuilder<ThemeMode>(
-          valueListenable: ThemeService.themeModeNotifier,
-          builder: (context, themeMode, _) {
-            // LISTENER 2: Bahasa (ID/EN) - INI YANG BARU
-            return ValueListenableBuilder<String>(
-              valueListenable: ThemeService.languageNotifier,
-              builder: (context, language, _) {
-                return MaterialApp.router(
-                  debugShowCheckedModeBanner: false,
-                  routerConfig: _appRouter,
-                  // Konfigurasi Tema
-                  theme: ThemeService.getLightTheme(),
-                  darkTheme: ThemeService.getDarkTheme(),
-                  themeMode: themeMode,
-                  // Bahasa akan dihandle manual via LocalizationService.get()
-                );
-              },
-            );
-          },
-        );
-      },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => AuthCubit()..checkLoginStatus()),
+        BlocProvider(
+            create: (context) =>
+                ProductCubit(ProductService())..fetchProducts()),
+        BlocProvider(create: (context) => CartCubit()..loadCart()),
+      ],
+      child: Sizer(
+        builder: (context, orientation, deviceType) {
+          return ValueListenableBuilder<ThemeMode>(
+            valueListenable: ThemeService.themeModeNotifier,
+            builder: (context, themeMode, _) {
+              return ValueListenableBuilder<String>(
+                valueListenable: ThemeService.languageNotifier,
+                builder: (context, language, _) {
+                  return MaterialApp.router(
+                    debugShowCheckedModeBanner: false,
+                    routerConfig: _appRouter,
+                    theme: ThemeService.getLightTheme(),
+                    darkTheme: ThemeService.getDarkTheme(),
+                    themeMode: themeMode,
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
