@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-// Import pages
 import 'features/shared/presentation/pages/splash_screen.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
@@ -20,8 +18,6 @@ import 'features/checkout/presentation/pages/purchase_history_page.dart';
 import 'features/product/presentation/pages/favorite_page.dart';
 import 'features/chat/presentation/pages/chat_page.dart';
 import 'features/settings/presentation/pages/settings_page.dart';
-
-// Import model dan service
 import 'model/model.dart';
 import 'features/shared/routes/app_router.dart';
 import 'features/shared/services/theme_service.dart';

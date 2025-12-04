@@ -5,6 +5,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../cubit/about_cubit.dart';
 import '../cubit/about_state.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../features/shared/routes/app_router.dart';
 
 class AboutUs extends StatelessWidget {
   const AboutUs({super.key});
@@ -29,6 +31,17 @@ class AboutUs extends StatelessWidget {
           elevation: 0,
           scrolledUnderElevation: 0,
           iconTheme: const IconThemeData(color: Colors.white),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => context.pop(),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.home, color: Colors.white),
+              tooltip: 'Home',
+              onPressed: () => context.go(AppRoutes.dashboard),
+            ),
+          ],
         ),
         body: Stack(
           fit: StackFit.expand,
@@ -115,7 +128,7 @@ class AboutUs extends StatelessWidget {
             SizedBox(height: isDesktop ? 10 : 1.h),
 
             // Deskripsi Singkat (New)
-            Container(
+            SizedBox(
               width: isDesktop
                   ? 600
                   : 80.w, // Membatasi lebar teks agar tidak terlalu panjang ke kanan
@@ -133,7 +146,7 @@ class AboutUs extends StatelessWidget {
 
             // === GRID MEMBER (DI TENGAH) ===
             // Menggunakan Container width infinity agar Wrap berada di tengah layar horizontal
-            Container(
+            SizedBox(
               width: double.infinity,
               child: Wrap(
                 spacing: isDesktop ? 30 : 5.w, // Jarak horizontal diperlebar
