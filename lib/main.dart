@@ -135,6 +135,7 @@ class MyApp extends StatelessWidget {
                 valueListenable: ThemeService.languageNotifier,
                 builder: (context, language, _) {
                   return MaterialApp.router(
+                    title: 'Urban Wear',
                     debugShowCheckedModeBanner: false,
                     routerConfig: _appRouter,
                     theme: ThemeService.getLightTheme(),
