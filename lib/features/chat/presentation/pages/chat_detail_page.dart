@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 import '../cubit/chat_cubit.dart';
 import '../cubit/chat_state.dart';
+import 'package:urban_wear_app/features/shared/routes/app_router.dart';
 
 class ChatDetailPage extends StatefulWidget {
   final String userId;
@@ -130,7 +131,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                           icon: Icon(Icons.close,
                               color: Colors.white,
                               size: responsiveSize(16, 20)),
-                          onPressed: () => context.pop(),
+                          onPressed: () => context.go(AppRoutes.dashboard),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
                         ),

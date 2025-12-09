@@ -12,6 +12,7 @@ import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
 import 'package:urban_wear_app/features/shared/services/localization_service.dart';
 import 'package:urban_wear_app/features/shared/services/theme_service.dart';
+import 'package:urban_wear_app/features/shared/routes/app_router.dart';
 
 class ProfilePage extends StatelessWidget {
   final UserModel user;
@@ -169,8 +170,8 @@ class _ProfileViewState extends State<ProfileView> {
 
     return LayoutBuilder(builder: (context, constraints) {
       final isDesktop = constraints.maxWidth > 900;
-      double responsiveSize(double mobileSp, double desktopPx) =>
-          isDesktop ? desktopPx : mobileSp.sp;
+      double responsiveSize(num mobileSp, num desktopPx) =>
+          isDesktop ? desktopPx.toDouble() : mobileSp.toDouble().sp;
 
       return ValueListenableBuilder<String>(
           valueListenable: ThemeService.languageNotifier,
@@ -208,7 +209,7 @@ class _ProfileViewState extends State<ProfileView> {
                   leading: IconButton(
                     icon: Icon(Icons.arrow_back,
                         color: textColor, size: responsiveSize(18, 24)),
-                    onPressed: () => context.pop(),
+                    onPressed: () => context.go(AppRoutes.dashboard),
                   ),
                   title: Text(
                     LocalizationService.get(currentLang, 'editProfile'),

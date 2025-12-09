@@ -33,7 +33,7 @@ class AboutUs extends StatelessWidget {
           iconTheme: const IconThemeData(color: Colors.white),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => context.pop(),
+            onPressed: () => context.go(AppRoutes.dashboard),
           ),
           actions: [
             IconButton(
@@ -86,9 +86,9 @@ class AboutUs extends StatelessWidget {
   Widget _buildContent(BuildContext context, List<TeamMember> members) {
     return LayoutBuilder(builder: (context, constraints) {
       final isDesktop = constraints.maxWidth > 900;
-      double responsiveSize(double mobileSp, double desktopPx) =>
-          isDesktop ? desktopPx : mobileSp.sp;
-
+      // Ganti Parameter jadi num
+      double responsiveSize(num mobileSp, num desktopPx) =>
+          isDesktop ? desktopPx.toDouble() : mobileSp.toDouble().sp;
       return SingleChildScrollView(
         // Padding diatur agar konten mulai agak dari atas dan tidak mepet kiri
         padding: EdgeInsets.fromLTRB(isDesktop ? 32 : 6.w,

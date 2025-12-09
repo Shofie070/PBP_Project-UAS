@@ -877,11 +877,7 @@ class _DashboardPageState extends State<DashboardPage>
           builder: (context, cartState) {
             return GestureDetector(
               onTap: () {
-                context.push(AppRoutes.cart).then((_) {
-                  if (context.mounted) {
-                    context.read<CartCubit>().loadCart();
-                  }
-                });
+                context.go(AppRoutes.cart);
               },
               child: AddToCartIcon(
                 key: cartKey,
@@ -904,7 +900,7 @@ class _DashboardPageState extends State<DashboardPage>
           icon: Icon(Icons.smart_toy, color: textColor),
           tooltip: 'Chat Bot',
           onPressed: () {
-            context.push(AppRoutes.chat, extra: {
+            context.go(AppRoutes.chat, extra: {
               'userId': widget.user.id.toString(),
               'userName': widget.user.username,
               'userEmail': widget.user.email,
@@ -916,10 +912,7 @@ class _DashboardPageState extends State<DashboardPage>
           padding: const EdgeInsets.only(right: 16.0),
           child: GestureDetector(
             onTap: () async {
-              await context.push(AppRoutes.profile, extra: widget.user);
-              if (mounted) {
-                context.read<DashboardCubit>().refreshUserData();
-              }
+              context.go(AppRoutes.profile, extra: widget.user);
             },
             child: FutureBuilder<SharedPreferences>(
               future: SharedPreferences.getInstance(),
@@ -1022,7 +1015,7 @@ class _DashboardPageState extends State<DashboardPage>
             title: const Text("Profil"),
             onTap: () {
               Navigator.pop(context);
-              context.push(AppRoutes.profile, extra: widget.user);
+              context.go(AppRoutes.profile, extra: widget.user);
             },
           ),
           const Divider(),
@@ -1038,7 +1031,7 @@ class _DashboardPageState extends State<DashboardPage>
             title: const Text("Settings"),
             onTap: () {
               Navigator.pop(context);
-              context.push(AppRoutes.settings);
+              context.go(AppRoutes.settings);
             },
           ),
           const Divider(),
@@ -1047,7 +1040,7 @@ class _DashboardPageState extends State<DashboardPage>
             title: const Text("Keranjang"),
             onTap: () {
               Navigator.pop(context);
-              context.push(AppRoutes.cart);
+              context.go(AppRoutes.cart);
             },
           ),
           ListTile(
@@ -1055,7 +1048,7 @@ class _DashboardPageState extends State<DashboardPage>
             title: const Text("Riwayat Pembelian"),
             onTap: () {
               Navigator.pop(context);
-              context.push(AppRoutes.purchaseHistory);
+              context.go(AppRoutes.purchaseHistory);
             },
           ),
           ListTile(
@@ -1063,7 +1056,7 @@ class _DashboardPageState extends State<DashboardPage>
             title: const Text("Favorit"),
             onTap: () {
               Navigator.pop(context);
-              context.push(AppRoutes.favorit);
+              context.go(AppRoutes.favorit);
             },
           ),
           ListTile(
@@ -1071,7 +1064,7 @@ class _DashboardPageState extends State<DashboardPage>
             title: const Text("About Us"),
             onTap: () {
               Navigator.pop(context);
-              context.push(AppRoutes.about);
+              context.go(AppRoutes.about);
             },
           ),
           ListTile(
@@ -1079,7 +1072,7 @@ class _DashboardPageState extends State<DashboardPage>
             title: const Text("Tentang Aplikasi"),
             onTap: () {
               Navigator.pop(context);
-              context.push(AppRoutes.aboutApp);
+              context.go(AppRoutes.aboutApp);
             },
           ),
           const Divider(),

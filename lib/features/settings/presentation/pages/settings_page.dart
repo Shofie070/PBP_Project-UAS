@@ -12,8 +12,8 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       final isDesktop = constraints.maxWidth > 900;
-      double responsiveSize(double mobileSp, double desktopPx) =>
-          isDesktop ? desktopPx : mobileSp.sp;
+      double responsiveSize(num mobileSp, num desktopPx) =>
+          isDesktop ? desktopPx.toDouble() : mobileSp.toDouble().sp;
 
       return ValueListenableBuilder<String>(
         valueListenable: ThemeService.languageNotifier,
@@ -30,7 +30,7 @@ class SettingsPage extends StatelessWidget {
               centerTitle: true,
               leading: IconButton(
                 icon: Icon(Icons.arrow_back, size: responsiveSize(16, 20)),
-                onPressed: () => context.pop(),
+                onPressed: () => context.go(AppRoutes.dashboard),
               ),
               actions: [
                 IconButton(

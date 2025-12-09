@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
+import 'package:go_router/go_router.dart';
+import 'package:urban_wear_app/features/shared/routes/app_router.dart';
+
 class AboutAppPage extends StatelessWidget {
   const AboutAppPage({super.key});
 
@@ -25,6 +28,10 @@ class AboutAppPage extends StatelessWidget {
           backgroundColor: Colors.transparent,
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.white),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => context.go(AppRoutes.dashboard),
+          ),
         ),
         body: Stack(
           fit: StackFit.expand,

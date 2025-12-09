@@ -32,6 +32,10 @@ class CartView extends StatelessWidget {
       return Scaffold(
         appBar: AppBar(
           toolbarHeight: isDesktop ? 100 : 10.h,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.go(AppRoutes.dashboard),
+          ),
           title: BlocBuilder<CartCubit, CartState>(
             builder: (context, state) {
               return Column(

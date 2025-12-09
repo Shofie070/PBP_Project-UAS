@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 
 import 'package:urban_wear_app/features/shared/services/pdf_service.dart';
+import 'package:urban_wear_app/features/shared/routes/app_router.dart';
 
 class RiwayatPembelianPage extends StatefulWidget {
   const RiwayatPembelianPage({super.key});
@@ -58,8 +59,10 @@ class _RiwayatPembelianPageState extends State<RiwayatPembelianPage> {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       final isDesktop = constraints.maxWidth > 900;
-      double responsiveSize(double mobileSp, double desktopPx) =>
-          isDesktop ? desktopPx : mobileSp.sp;
+
+      // PERBAIKAN: Menggunakan 'num' agar aman menerima int maupun double
+      double responsiveSize(num mobileSp, num desktopPx) =>
+          isDesktop ? desktopPx.toDouble() : mobileSp.toDouble().sp;
 
       return Scaffold(
         appBar: AppBar(
@@ -74,7 +77,7 @@ class _RiwayatPembelianPageState extends State<RiwayatPembelianPage> {
                 color: Theme.of(context).iconTheme.color,
                 size: responsiveSize(18, 24)),
             onPressed: () {
-              context.pop();
+              context.go(AppRoutes.dashboard);
             },
           ),
           actions: [
@@ -344,49 +347,78 @@ class _RiwayatPembelianPageState extends State<RiwayatPembelianPage> {
                             ],
                           ),
                         ),
-                        // Actions
+                        // Actions (DIPERBAIKI DISINI)
                         Padding(
-                          padding: EdgeInsets.all(isDesktop ? 16 : 4.w),
+                          padding: EdgeInsets.fromLTRB(
+                              isDesktop ? 16 : 4.w,
+                              0,
+                              isDesktop ? 16 : 4.w,
+                              isDesktop ? 16 : 2.h), // Padding bawah saja
                           child: Row(
                             children: [
+                              // Tombol Download
                               Expanded(
                                 child: OutlinedButton.icon(
                                   icon: Icon(Icons.download,
-                                      size: responsiveSize(14, 18)),
-                                  label: Text('Download PDF',
+                                      size:
+                                          responsiveSize(14, 16)), // Icon kecil
+                                  // PERBAIKAN: Jika desktop pakai teks panjang, jika HP pakai "PDF" saja
+                                  label: Text(
+                                      isDesktop ? 'Download PDF' : 'PDF',
                                       style: TextStyle(
-                                          fontSize: responsiveSize(10, 12))),
+                                          fontSize: responsiveSize(9, 11))),
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4), // Padding tipis
+                                    minimumSize:
+                                        const Size(0, 36), // Tinggi button
+                                    visualDensity: VisualDensity.compact,
+                                  ),
                                   onPressed: () async {
                                     await PdfService.generateAndPrintInvoice(
                                         record);
                                   },
                                 ),
                               ),
-                              SizedBox(width: isDesktop ? 8 : 2.w),
+                              const SizedBox(width: 8),
+
+                              // Tombol Cetak
                               Expanded(
                                 child: ElevatedButton.icon(
                                   icon: Icon(Icons.print,
-                                      size: responsiveSize(14, 18)),
+                                      size: responsiveSize(14, 16)),
                                   label: Text('Cetak',
                                       style: TextStyle(
-                                          fontSize: responsiveSize(10, 12))),
+                                          fontSize: responsiveSize(9, 11))),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4),
+                                    minimumSize: const Size(0, 36),
+                                    visualDensity: VisualDensity.compact,
+                                  ),
                                   onPressed: () async {
                                     await PdfService.generateAndPrintInvoice(
                                         record);
                                   },
                                 ),
                               ),
-                              SizedBox(width: isDesktop ? 8 : 2.w),
+                              const SizedBox(width: 8),
+
+                              // Tombol Hapus
                               Expanded(
                                 child: ElevatedButton.icon(
                                   icon: Icon(Icons.delete,
-                                      size: responsiveSize(14, 18)),
+                                      size: responsiveSize(14, 16)),
                                   label: Text('Hapus',
                                       style: TextStyle(
-                                          fontSize: responsiveSize(10, 12))),
+                                          fontSize: responsiveSize(9, 11))),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.red,
                                     foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4),
+                                    minimumSize: const Size(0, 36),
+                                    visualDensity: VisualDensity.compact,
                                   ),
                                   onPressed: () async {
                                     final confirm = await showDialog<bool>(

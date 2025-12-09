@@ -76,7 +76,7 @@ class _FavoritPageState extends State<FavoritPage> {
           toolbarHeight: isDesktop ? 100 : 10.h,
           leading: IconButton(
             icon: Icon(Icons.arrow_back, size: responsiveSize(18, 24)),
-            onPressed: () => context.pop(),
+            onPressed: () => context.go(AppRoutes.dashboard),
           ),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
