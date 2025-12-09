@@ -107,7 +107,7 @@ class _PaymentViewState extends State<PaymentView> {
               appBar: AppBar(
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back),
-                  onPressed: () => context.pop(),
+                  onPressed: () => context.go(AppRoutes.dashboard),
                 ),
                 title: Text(LocalizationService.get(lang, 'payment')),
                 elevation: 1,

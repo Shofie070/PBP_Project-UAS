@@ -119,6 +119,10 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                 elevation: 0,
                 iconTheme: IconThemeData(
                     color: Theme.of(context).textTheme.bodyLarge?.color),
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => context.go(AppRoutes.dashboard),
+                ),
                 title: Text(product.name,
                     style: TextStyle(
                         color: Theme.of(context).textTheme.bodyLarge?.color,
