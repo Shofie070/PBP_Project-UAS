@@ -29,6 +29,12 @@ class PaymentCubit extends Cubit<PaymentState> {
 
   Future<void> processPayment(
       List<Product> products, double totalAmount) async {
+    if (state.selectedPaymentMethod.isEmpty) {
+      emit(state.copyWith(
+          status: PaymentStatus.failure,
+          errorMessage: 'Pilih metode pembayaran terlebih dahulu'));
+      return;
+    }
     emit(state.copyWith(status: PaymentStatus.loading));
     try {
       // Simulate processing

@@ -62,7 +62,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
   }
 
   void _buyNow(BuildContext context, Product product) {
-    context.push(
+    context.go(
       AppRoutes.payment,
       extra: {
         'products': [product],
@@ -132,11 +132,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                     builder: (context, cartState) {
                       return GestureDetector(
                         onTap: () {
-                          context.push(AppRoutes.cart).then((_) {
-                            if (context.mounted) {
-                              context.read<CartCubit>().loadCart();
-                            }
-                          });
+                          context.go(AppRoutes.cart);
                         },
                         child: AddToCartIcon(
                           key: cartKey,

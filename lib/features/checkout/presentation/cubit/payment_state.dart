@@ -11,7 +11,7 @@ class PaymentState extends Equatable {
 
   const PaymentState({
     this.status = PaymentStatus.initial,
-    this.selectedPaymentMethod = 'credit_card',
+    this.selectedPaymentMethod = '',
     this.email = '',
     this.receiptData,
     this.errorMessage,

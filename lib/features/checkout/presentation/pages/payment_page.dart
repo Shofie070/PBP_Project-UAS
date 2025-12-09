@@ -8,6 +8,7 @@ import '../../../../features/shared/services/localization_service.dart';
 import '../../../../features/shared/routes/app_router.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
+import '../../../../features/cart/presentation/cubit/cart_cubit.dart';
 
 class PaymentPage extends StatelessWidget {
   final List<Product> products;
@@ -78,6 +79,7 @@ class _PaymentViewState extends State<PaymentView> {
       listener: (context, state) {
         if (state.status == PaymentStatus.success &&
             state.receiptData != null) {
+          context.read<CartCubit>().removePurchasedItems(widget.products);
           _showSuccessDialog(context, state.receiptData!);
         }
         if (state.status == PaymentStatus.failure) {
@@ -294,7 +296,8 @@ class _PaymentViewState extends State<PaymentView> {
           width: double.infinity,
           height: 5.5.h,
           child: ElevatedButton(
-            onPressed: state.status == PaymentStatus.loading
+            onPressed: state.status == PaymentStatus.loading ||
+                    state.selectedPaymentMethod.isEmpty
                 ? null
                 : () =>
                     cubit.processPayment(widget.products, widget.totalAmount),

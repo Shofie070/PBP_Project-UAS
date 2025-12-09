@@ -481,7 +481,7 @@ class _DashboardPageState extends State<DashboardPage>
       Color textColor) {
     GlobalKey widgetKey = GlobalKey();
     return GestureDetector(
-      onTap: () => context.push(AppRoutes.detailProduk, extra: product),
+      onTap: () => context.go(AppRoutes.detailProduk, extra: product),
       child: Container(
         decoration: BoxDecoration(
           color: cardColor,

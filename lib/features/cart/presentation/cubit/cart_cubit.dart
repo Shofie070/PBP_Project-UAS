@@ -107,6 +107,33 @@ class CartCubit extends Cubit<CartState> {
     }
   }
 
+  Future<void> removePurchasedItems(List<Product> products) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final list = prefs.getStringList('cart_items') ?? [];
+      final productIds = products.map((p) => p.id).toSet();
+      final productNames = products.map((p) => p.name).toSet();
+
+      list.removeWhere((itemStr) {
+        try {
+          final decoded = jsonDecode(itemStr);
+          if (decoded is Map) {
+            final id = decoded['id'];
+            final name = decoded['name'] ?? decoded['title'];
+            if (id != null && productIds.contains(id)) return true;
+            if (name != null && productNames.contains(name)) return true;
+          }
+        } catch (_) {}
+        return false;
+      });
+
+      await prefs.setStringList('cart_items', list);
+      await loadCart(); // Refresh state
+    } catch (e) {
+      // ignore
+    }
+  }
+
   Future<void> toggleFavorite(Product product) async {
     final isFav = state.favoriteIds.contains(product.id);
     final newFavIds = Set<String>.from(state.favoriteIds);

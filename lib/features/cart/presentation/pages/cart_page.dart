@@ -275,7 +275,7 @@ class CartView extends StatelessWidget {
                           onPressed: () {
                             final selectedProducts = state.selectedProducts;
                             if (selectedProducts.isNotEmpty) {
-                              context.push(
+                              context.go(
                                 AppRoutes.payment,
                                 extra: {
                                   'products': selectedProducts,
